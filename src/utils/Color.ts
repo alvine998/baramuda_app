@@ -7,5 +7,6 @@ export const COLOR = {
     INFO: '#65AEC5',
     DANGER: '#C56567',
     WARNING: '#C5A565',
-    GRAY: '#A9A9A9'
+    GRAY: '#A9A9A9',
+    DARK_GRAY: '#333333'
 }

@@ -1,16 +1,13 @@
-import { View, Text } from 'react-native';
 import React from 'react';
-import Prelogin from './src/screens/prelogin/Prelogin';
-import Login from './src/screens/login/Login';
-import ForgotPassword from './src/screens/forgot-password/ForgotPassword';
-import Register from './src/screens/register/Register';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import AppNavigator from './src/navigation/AppNavigator';
 
 export default function App() {
   return (
-    <>
-      <Register />
+    <SafeAreaProvider>
+      <AppNavigator />
       <Toast />
-    </>
+    </SafeAreaProvider>
   );
 }

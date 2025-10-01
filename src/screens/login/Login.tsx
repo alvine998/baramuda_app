@@ -1,11 +1,40 @@
-import { View, Text, Image, TextInput, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import React, { useState } from 'react';
 import normalize from 'react-native-normalize';
 import { COLOR } from '../../utils/Color';
 import { FontAwesome5 } from '@react-native-vector-icons/fontawesome5';
+import Toast from 'react-native-toast-message';
 
-export default function Login() {
+export default function Login({ navigation }: { navigation: any }) {
   const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+
+  const handleLogin = () => {
+    // Check if email and password match the required credentials
+    if (email === 'admin@gmail.com' && password === 'admin1234') {
+      Toast.show({
+        type: 'success',
+        text1: 'Login Successful',
+        text2: 'Welcome back!',
+      });
+      // Navigate to Home screen after successful login
+      navigation.navigate('MainApp');
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Login Failed',
+        text2: 'Invalid email or password',
+      });
+    }
+  };
+
   return (
     <View
       style={{
@@ -23,12 +52,15 @@ export default function Login() {
           marginTop: normalize(20),
         }}
       >
-        <FontAwesome5
-          iconStyle="solid"
-          name="chevron-left"
-          size={normalize(20)}
-          color={COLOR.PRIMARY}
-        />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <FontAwesome5
+            iconStyle="solid"
+            name="chevron-left"
+            size={normalize(20)}
+            color={COLOR.PRIMARY}
+          />
+        </TouchableOpacity>
+
         <Text
           style={{
             fontSize: normalize(20),
@@ -38,7 +70,7 @@ export default function Login() {
         >
           Login
         </Text>
-        <View style={{ width: normalize(20) }}></View>
+        <View style={{ width: normalize(20) }} />
       </View>
 
       {/* Logo */}
@@ -67,6 +99,8 @@ export default function Login() {
           <TextInput
             placeholder="Email"
             placeholderTextColor={COLOR.GRAY}
+            value={email}
+            onChangeText={setEmail}
             style={{
               fontWeight: 'bold',
               color: COLOR.PRIMARY,
@@ -91,6 +125,8 @@ export default function Login() {
             placeholder="Password"
             secureTextEntry={isVisible ? false : true}
             placeholderTextColor={COLOR.GRAY}
+            value={password}
+            onChangeText={setPassword}
             style={{
               fontWeight: 'bold',
               color: COLOR.PRIMARY,
@@ -99,8 +135,7 @@ export default function Login() {
           />
           <TouchableOpacity onPress={() => setIsVisible(!isVisible)}>
             <FontAwesome5
-              iconStyle="solid"
-              name="eye-slash"
+              name={isVisible ? 'eye' : 'eye-slash'}
               size={normalize(20)}
               color={COLOR.GRAY}
             />
@@ -114,6 +149,7 @@ export default function Login() {
             justifyContent: 'flex-end',
             marginTop: normalize(10),
           }}
+          onPress={() => navigation.navigate('ForgotPassword')}
         >
           <Text
             style={{
@@ -136,6 +172,7 @@ export default function Login() {
           marginTop: normalize(40),
           width: '100%',
         }}
+        onPress={handleLogin}
       >
         <Text
           style={{

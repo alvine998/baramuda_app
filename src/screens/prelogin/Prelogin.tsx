@@ -3,7 +3,11 @@ import React from 'react';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
 
-export default function Prelogin() {
+interface PreloginProps {
+  navigation: any;
+}
+
+export default function Prelogin({ navigation }: PreloginProps) {
   return (
     <View
       style={{
@@ -33,6 +37,7 @@ export default function Prelogin() {
             marginTop: normalize(40),
             width: '100%',
           }}
+          onPress={() => navigation.navigate('Login')}
         >
           <Text
             style={{
@@ -72,6 +77,7 @@ export default function Prelogin() {
             marginTop: normalize(20),
             width: '100%',
           }}
+          onPress={() => navigation.navigate('Register')}
         >
           <Text
             style={{

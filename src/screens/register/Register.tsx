@@ -1,11 +1,15 @@
-import { View, Text, Image, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import normalize from 'react-native-normalize';
 import { COLOR } from '../../utils/Color';
 import { FontAwesome5 } from '@react-native-vector-icons/fontawesome5';
 import Toast from 'react-native-toast-message';
 
-export default function Register() {
+interface RegisterProps {
+  navigation: any;
+}
+
+export default function Register({ navigation }: RegisterProps) {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isVisible2, setIsVisible2] = useState<boolean>(false);
   const [payload, setPayload] = useState({
@@ -75,6 +79,8 @@ export default function Register() {
         text1: 'Registrasi Berhasil',
         position: 'top',
       });
+      // Navigate to Login after successful registration
+      navigation.navigate('Login');
     } catch (error) {
       console.log(error);
       Toast.show({
@@ -84,6 +90,7 @@ export default function Register() {
       });
     }
   };
+
   return (
     <View
       style={{
@@ -101,12 +108,14 @@ export default function Register() {
           marginTop: normalize(20),
         }}
       >
-        <FontAwesome5
-          iconStyle="solid"
-          name="chevron-left"
-          size={normalize(20)}
-          color={COLOR.PRIMARY}
-        />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <FontAwesome5
+            iconStyle="solid"
+            name="chevron-left"
+            size={normalize(20)}
+            color={COLOR.PRIMARY}
+          />
+        </TouchableOpacity>
         <Text
           style={{
             fontSize: normalize(20),
@@ -116,7 +125,7 @@ export default function Register() {
         >
           Registrasi
         </Text>
-        <View style={{ width: normalize(20) }}></View>
+        <View style={{ width: normalize(20) }} />
       </View>
 
       {/* Form */}

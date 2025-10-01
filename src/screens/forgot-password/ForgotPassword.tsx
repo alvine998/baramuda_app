@@ -3,8 +3,46 @@ import React, { useState } from 'react';
 import normalize from 'react-native-normalize';
 import { COLOR } from '../../utils/Color';
 import { FontAwesome5 } from '@react-native-vector-icons/fontawesome5';
+import Toast from 'react-native-toast-message';
 
-export default function ForgotPassword() {
+interface ForgotPasswordProps {
+  navigation: any;
+}
+
+export default function ForgotPassword({ navigation }: ForgotPasswordProps) {
+  const [email, setEmail] = useState<string>('');
+
+  const handleSendOTP = () => {
+    if (!email) {
+      Toast.show({
+        type: 'error',
+        text1: 'Email Harus Diisi',
+        position: 'top',
+      });
+      return;
+    }
+
+    if (!email.includes('@')) {
+      Toast.show({
+        type: 'error',
+        text1: 'Email Tidak Valid',
+        position: 'top',
+      });
+      return;
+    }
+
+    // Here you would typically send OTP to the email
+    Toast.show({
+      type: 'success',
+      text1: 'Kode OTP Dikirim',
+      text2: 'Silakan periksa email Anda',
+      position: 'top',
+    });
+
+    // Navigate back to login after sending OTP
+    navigation.navigate('Login');
+  };
+
   return (
     <View
       style={{
@@ -22,12 +60,14 @@ export default function ForgotPassword() {
           marginTop: normalize(20),
         }}
       >
-        <FontAwesome5
-          iconStyle="solid"
-          name="chevron-left"
-          size={normalize(20)}
-          color={COLOR.PRIMARY}
-        />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <FontAwesome5
+            iconStyle="solid"
+            name="chevron-left"
+            size={normalize(20)}
+            color={COLOR.PRIMARY}
+          />
+        </TouchableOpacity>
         <Text
           style={{
             fontSize: normalize(20),
@@ -37,7 +77,7 @@ export default function ForgotPassword() {
         >
           Lupa Password
         </Text>
-        <View style={{ width: normalize(20) }}></View>
+        <View style={{ width: normalize(20) }} />
       </View>
 
       <View style={{ marginTop: normalize(20) }}>
@@ -61,6 +101,10 @@ export default function ForgotPassword() {
           <TextInput
             placeholder="Email"
             placeholderTextColor={COLOR.GRAY}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
             style={{
               fontWeight: 'bold',
               color: COLOR.PRIMARY,
@@ -78,6 +122,7 @@ export default function ForgotPassword() {
           marginTop: normalize(20),
           width: '100%',
         }}
+        onPress={handleSendOTP}
       >
         <Text
           style={{
