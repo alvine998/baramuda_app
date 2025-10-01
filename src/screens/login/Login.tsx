@@ -25,7 +25,7 @@ export default function Login({ navigation }: { navigation: any }) {
         text2: 'Welcome back!',
       });
       // Navigate to Home screen after successful login
-      navigation.navigate('MainApp');
+      navigation.navigate('Home');
     } else {
       Toast.show({
         type: 'error',
