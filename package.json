@@ -7,9 +7,14 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "codepush:android:staging": "appcenter codepush release-react -a your-app-center-account/Baramuda-08-Android -d Staging",
+    "codepush:android:production": "appcenter codepush release-react -a your-app-center-account/Baramuda-08-Android -d Production",
+    "codepush:ios:staging": "appcenter codepush release-react -a your-app-center-account/Baramuda-08-iOS -d Staging",
+    "codepush:ios:production": "appcenter codepush release-react -a your-app-center-account/Baramuda-08-iOS -d Production"
   },
   "dependencies": {
+    "@code-push-next/react-native-code-push": "^10.2.0",
     "@react-native-vector-icons/fontawesome": "^12.3.0",
     "@react-native-vector-icons/fontawesome5": "^12.2.0",
     "@react-native/codegen": "^0.81.1",
@@ -20,6 +25,7 @@
     "axios": "^1.11.0",
     "react": "19.1.0",
     "react-native": "0.81.4",
+    "react-native-code-push": "^9.0.1",
     "react-native-gesture-handler": "^2.28.0",
     "react-native-normalize": "^1.0.1",
     "react-native-reanimated": "^4.1.2",
