@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
-import { FontAwesome5 } from '@react-native-vector-icons/fontawesome5';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import Toast from 'react-native-toast-message';
 
 interface NotificationProps {
@@ -191,11 +191,11 @@ export default function Notification({ navigation }: NotificationProps) {
             marginRight: normalize(12),
           }}
         >
-          <FontAwesome5
+          <Icon
             name={getNotificationIcon(item.type)}
             size={normalize(16)}
             color={COLOR.WHITE}
-            iconStyle="solid"
+            solid
           />
         </View>
 
@@ -239,7 +239,7 @@ export default function Notification({ navigation }: NotificationProps) {
 
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <FontAwesome5 name="clock" size={normalize(10)} color={COLOR.GRAY} iconStyle="solid" />
+              <Icon name="clock" size={normalize(10)} color={COLOR.GRAY} solid />
               <Text
                 style={{
                   fontSize: normalize(10),
@@ -251,7 +251,7 @@ export default function Notification({ navigation }: NotificationProps) {
               </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <FontAwesome5 name="tag" size={normalize(10)} color={COLOR.GRAY} iconStyle="solid" />
+              <Icon name="tag" size={normalize(10)} color={COLOR.GRAY} solid />
               <Text
                 style={{
                   fontSize: normalize(10),
@@ -301,11 +301,11 @@ export default function Notification({ navigation }: NotificationProps) {
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="arrow-left"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
 
@@ -353,11 +353,11 @@ export default function Notification({ navigation }: NotificationProps) {
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="bars"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
       </View>
@@ -383,7 +383,7 @@ export default function Notification({ navigation }: NotificationProps) {
         }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <FontAwesome5 name="bell" size={normalize(20)} color={COLOR.PRIMARY} iconStyle="solid" style={{ marginRight: normalize(10) }} />
+          <Icon name="bell" size={normalize(20)} color={COLOR.PRIMARY} solid style={{ marginRight: normalize(10) }} />
           <View>
             <Text
               style={{
@@ -448,7 +448,7 @@ export default function Notification({ navigation }: NotificationProps) {
                 paddingVertical: normalize(50),
               }}
             >
-              <FontAwesome5 name="bell-slash" size={normalize(50)} color={COLOR.GRAY} iconStyle="solid" />
+              <Icon name="bell-slash" size={normalize(50)} color={COLOR.GRAY} solid />
               <Text
                 style={{
                   fontSize: normalize(16),
@@ -487,7 +487,7 @@ export default function Notification({ navigation }: NotificationProps) {
             onPress={handleLoadMore}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <FontAwesome5 name="chevron-down" size={normalize(16)} color={COLOR.SECONDARY} iconStyle="solid" style={{ marginRight: normalize(8) }} />
+              <Icon name="chevron-down" size={normalize(16)} color={COLOR.SECONDARY} solid style={{ marginRight: normalize(8) }} />
               <Text
                 style={{
                   fontSize: normalize(14),

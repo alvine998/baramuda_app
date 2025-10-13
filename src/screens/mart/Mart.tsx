@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
-import { FontAwesome5 } from '@react-native-vector-icons/fontawesome5';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 interface MartProps {
   navigation: any;
@@ -234,7 +234,7 @@ export default function Mart({ navigation }: MartProps) {
 
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <FontAwesome5 name="shopping-cart" size={normalize(10)} color={COLOR.GRAY} iconStyle="solid" />
+            <Icon name="shopping-cart" size={normalize(10)} color={COLOR.GRAY} solid />
             <Text
               style={{
                 fontSize: normalize(10),
@@ -246,7 +246,7 @@ export default function Mart({ navigation }: MartProps) {
             </Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <FontAwesome5 name="star" size={normalize(10)} color="#FFD700" />
+            <Icon name="star" size={normalize(10)} color="#FFD700" />
             <Text
               style={{
                 fontSize: normalize(10),
@@ -312,11 +312,11 @@ export default function Mart({ navigation }: MartProps) {
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="arrow-left"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
 
@@ -341,11 +341,11 @@ export default function Mart({ navigation }: MartProps) {
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="bars"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
       </View>
@@ -370,7 +370,7 @@ export default function Mart({ navigation }: MartProps) {
           shadowRadius: 2,
         }}
       >
-        <FontAwesome5 name="search" size={normalize(16)} color={COLOR.GRAY} iconStyle="solid" />
+        <Icon name="search" size={normalize(16)} color={COLOR.GRAY} solid />
         <TextInput
           style={{
             flex: 1,
@@ -384,7 +384,7 @@ export default function Mart({ navigation }: MartProps) {
           onChangeText={setSearchQuery}
         />
         <TouchableOpacity onPress={() => setShowFilterModal(true)}>
-          <FontAwesome5 name="filter" size={normalize(16)} color={COLOR.PRIMARY} iconStyle="solid" />
+          <Icon name="filter" size={normalize(16)} color={COLOR.PRIMARY} solid />
         </TouchableOpacity>
       </View>
 
@@ -428,7 +428,7 @@ export default function Mart({ navigation }: MartProps) {
               paddingVertical: normalize(50),
             }}
           >
-            <FontAwesome5 name="search" size={normalize(50)} color={COLOR.GRAY} iconStyle="solid" />
+            <Icon name="search" size={normalize(50)} color={COLOR.GRAY} solid />
             <Text
               style={{
                 fontSize: normalize(16),
@@ -515,7 +515,7 @@ export default function Mart({ navigation }: MartProps) {
                   setShowFilterModal(false);
                 }}
               >
-                <FontAwesome5
+                <Icon
                   name={sortBy === option ? 'check-circle' : 'circle'}
                   size={normalize(16)}
                   color={sortBy === option ? COLOR.PRIMARY : COLOR.GRAY}

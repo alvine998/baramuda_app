@@ -1,7 +1,9 @@
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
 import React from 'react';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
+
+const { width, height } = Dimensions.get('window');
 
 interface PreloginProps {
   navigation: any;
@@ -9,40 +11,110 @@ interface PreloginProps {
 
 export default function Prelogin({ navigation }: PreloginProps) {
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: COLOR.SECONDARY,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Text style={{ fontSize: normalize(20), fontWeight: 'bold' }}>
-        Selamat Datang Di
-      </Text>
-      <Image
-        source={require('../../assets/images/logo.png')}
+    <View style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
+      <StatusBar barStyle="dark-content" backgroundColor={COLOR.SECONDARY} />
+      
+      {/* Header with gradient background */}
+      <View
         style={{
-          width: normalize(200),
-          height: normalize(200),
-          marginTop: normalize(40),
+          height: height * 0.45,
+          backgroundColor: COLOR.SECONDARY,
+          borderBottomLeftRadius: normalize(30),
+          borderBottomRightRadius: normalize(30),
+          paddingTop: normalize(60),
+          paddingHorizontal: normalize(20),
+          alignItems: 'center',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 8,
         }}
-      />
-      <View style={{ padding: normalize(20), width: '100%' }}>
+      >
+        {/* Logo and welcome text */}
+        <View style={{ alignItems: 'center', marginTop: normalize(40) }}>
+          <View
+            style={{
+              width: normalize(120),
+              height: normalize(120),
+              borderRadius: normalize(60),
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: normalize(20),
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 8,
+            }}
+          >
+            <Image
+              source={require('../../assets/images/logo.png')}
+              style={{
+                width: normalize(80),
+                height: normalize(80),
+                borderRadius: normalize(40),
+              }}
+            />
+          </View>
+          
+          <Text
+            style={{
+              fontSize: normalize(28),
+              fontWeight: 'bold',
+              color: COLOR.PRIMARY,
+              textAlign: 'center',
+              marginBottom: normalize(8),
+            }}
+          >
+            Selamat Datang
+          </Text>
+          
+          <Text
+            style={{
+              fontSize: normalize(16),
+              color: COLOR.DARK_GRAY,
+              textAlign: 'center',
+              lineHeight: normalize(22),
+            }}
+          >
+            Nikmati kemudahan layanan terbaik{'\n'}dengan Baramuda
+          </Text>
+        </View>
+      </View>
+
+      {/* Bottom section with buttons */}
+      <View
+        style={{
+          flex: 1,
+          paddingHorizontal: normalize(24),
+          paddingTop: normalize(40),
+          paddingBottom: normalize(30),
+        }}
+      >
+        {/* Login Button */}
         <TouchableOpacity
           style={{
             backgroundColor: COLOR.WHITE,
-            padding: normalize(20),
-            borderRadius: normalize(10),
-            marginTop: normalize(40),
-            width: '100%',
+            paddingVertical: normalize(18),
+            borderRadius: normalize(12),
+            marginBottom: normalize(20),
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 4,
+            borderWidth: 1,
+            borderColor: '#E5E5E5',
           }}
           onPress={() => navigation.navigate('Login')}
         >
           <Text
             style={{
-              color: COLOR.BLACK,
+              color: COLOR.PRIMARY,
               fontSize: normalize(16),
+              fontWeight: '600',
               textAlign: 'center',
             }}
           >
@@ -50,32 +122,52 @@ export default function Prelogin({ navigation }: PreloginProps) {
           </Text>
         </TouchableOpacity>
 
-        {/* Atau */}
+        {/* Divider */}
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            marginTop: normalize(20),
+            marginVertical: normalize(20),
           }}
         >
-          <View style={{ height: 1, backgroundColor: COLOR.BLACK, flex: 1 }} />
+          <View
+            style={{
+              height: 1,
+              backgroundColor: '#E5E5E5',
+              flex: 1,
+            }}
+          />
           <Text
-            style={{ marginHorizontal: normalize(10), fontSize: normalize(16) }}
+            style={{
+              marginHorizontal: normalize(16),
+              fontSize: normalize(14),
+              color: '#666',
+              fontWeight: '500',
+            }}
           >
-            Atau
+            atau
           </Text>
-          <View style={{ height: 1, backgroundColor: COLOR.BLACK, flex: 1 }} />
+          <View
+            style={{
+              height: 1,
+              backgroundColor: '#E5E5E5',
+              flex: 1,
+            }}
+          />
         </View>
 
-        {/* Regist */}
+        {/* Register Button */}
         <TouchableOpacity
           style={{
             backgroundColor: COLOR.PRIMARY,
-            padding: normalize(20),
-            borderRadius: normalize(10),
-            marginTop: normalize(20),
-            width: '100%',
+            paddingVertical: normalize(18),
+            borderRadius: normalize(12),
+            shadowColor: COLOR.PRIMARY,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 6,
           }}
           onPress={() => navigation.navigate('Register')}
         >
@@ -83,12 +175,34 @@ export default function Prelogin({ navigation }: PreloginProps) {
             style={{
               color: COLOR.WHITE,
               fontSize: normalize(16),
+              fontWeight: '600',
               textAlign: 'center',
             }}
           >
-            Registrasi
+            Daftar Sekarang
           </Text>
         </TouchableOpacity>
+
+        {/* Terms and Privacy */}
+        <View style={{ marginTop: normalize(30), alignItems: 'center' }}>
+          <Text
+            style={{
+              fontSize: normalize(12),
+              color: '#666',
+              textAlign: 'center',
+              lineHeight: normalize(18),
+            }}
+          >
+            Dengan melanjutkan, Anda menyetujui{'\n'}
+            <Text style={{ color: COLOR.PRIMARY, fontWeight: '500' }}>
+              Syarat & Ketentuan
+            </Text>
+            {' '}dan{' '}
+            <Text style={{ color: COLOR.PRIMARY, fontWeight: '500' }}>
+              Kebijakan Privasi
+            </Text>
+          </Text>
+        </View>
       </View>
     </View>
   );

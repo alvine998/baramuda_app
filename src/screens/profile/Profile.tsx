@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
-import { FontAwesome5 } from '@react-native-vector-icons/fontawesome5';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import Toast from 'react-native-toast-message';
 
 interface ProfileProps {
@@ -169,11 +169,11 @@ export default function Profile({ navigation }: ProfileProps) {
             marginRight: normalize(15),
           }}
         >
-          <FontAwesome5
+          <Icon
             name={item.icon as any}
             size={normalize(20)}
             color={COLOR.WHITE}
-            iconStyle="solid"
+            solid
           />
         </View>
 
@@ -203,11 +203,11 @@ export default function Profile({ navigation }: ProfileProps) {
         </View>
 
         {/* Arrow */}
-        <FontAwesome5
+        <Icon
           name="chevron-right"
           size={normalize(14)}
           color={COLOR.GRAY}
-          iconStyle="solid"
+          solid
         />
       </View>
     </TouchableOpacity>
@@ -240,11 +240,11 @@ export default function Profile({ navigation }: ProfileProps) {
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="arrow-left"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
 
@@ -269,11 +269,11 @@ export default function Profile({ navigation }: ProfileProps) {
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="bars"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
       </View>
@@ -362,11 +362,11 @@ export default function Profile({ navigation }: ProfileProps) {
                 marginBottom: normalize(8),
               }}
             >
-              <FontAwesome5
+              <Icon
                 name="star"
                 size={normalize(20)}
                 color={COLOR.SECONDARY}
-                iconStyle="solid"
+                solid
               />
             </View>
             <Text
@@ -400,11 +400,11 @@ export default function Profile({ navigation }: ProfileProps) {
                 marginBottom: normalize(8),
               }}
             >
-              <FontAwesome5
+              <Icon
                 name="trophy"
                 size={normalize(20)}
                 color={COLOR.WHITE}
-                iconStyle="solid"
+                solid
               />
             </View>
             <Text
@@ -438,11 +438,11 @@ export default function Profile({ navigation }: ProfileProps) {
                 marginBottom: normalize(8),
               }}
             >
-              <FontAwesome5
+              <Icon
                 name="clock"
                 size={normalize(20)}
                 color={COLOR.WHITE}
-                iconStyle="solid"
+                solid
               />
             </View>
             <Text
@@ -474,11 +474,11 @@ export default function Profile({ navigation }: ProfileProps) {
             borderRadius: normalize(15),
           }}
         >
-          <FontAwesome5
+          <Icon
             name="crown"
             size={normalize(20)}
             color="#FFD700"
-            iconStyle="solid"
+            solid
             style={{ marginBottom: normalize(8) }}
           />
           <Text
@@ -528,19 +528,19 @@ export default function Profile({ navigation }: ProfileProps) {
 
           <View style={{ marginBottom: normalize(15) }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: normalize(8) }}>
-              <FontAwesome5 name="phone" size={normalize(16)} color={COLOR.PRIMARY} iconStyle="solid" style={{ marginRight: normalize(12), width: normalize(20) }} />
+              <Icon name="phone" size={normalize(16)} color={COLOR.PRIMARY} solid style={{ marginRight: normalize(12), width: normalize(20) }} />
               <Text style={{ fontSize: normalize(14), color: COLOR.DARK_GRAY, flex: 1 }}>
                 {userProfile.phone}
               </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: normalize(8) }}>
-              <FontAwesome5 name="map-marker-alt" size={normalize(16)} color={COLOR.PRIMARY} iconStyle="solid" style={{ marginRight: normalize(12), width: normalize(20) }} />
+              <Icon name="map-marker-alt" size={normalize(16)} color={COLOR.PRIMARY} solid style={{ marginRight: normalize(12), width: normalize(20) }} />
               <Text style={{ fontSize: normalize(14), color: COLOR.DARK_GRAY, flex: 1 }}>
                 {userProfile.location}
               </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <FontAwesome5 name="calendar-alt" size={normalize(16)} color={COLOR.PRIMARY} iconStyle="solid" style={{ marginRight: normalize(12), width: normalize(20) }} />
+              <Icon name="calendar-alt" size={normalize(16)} color={COLOR.PRIMARY} solid style={{ marginRight: normalize(12), width: normalize(20) }} />
               <Text style={{ fontSize: normalize(14), color: COLOR.DARK_GRAY, flex: 1 }}>
                 Bergabung sejak {userProfile.joinDate}
               </Text>

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
-import { FontAwesome5 } from '@react-native-vector-icons/fontawesome5';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import Toast from 'react-native-toast-message';
 
 interface MediaProps {
@@ -138,11 +138,11 @@ export default function Media({ navigation }: MediaProps) {
             marginRight: normalize(15),
           }}
         >
-          <FontAwesome5
+          <Icon
             name={item.icon as any}
             size={normalize(28)}
             color={COLOR.WHITE}
-            iconStyle="brand"
+            solid
           />
         </View>
 
@@ -170,11 +170,11 @@ export default function Media({ navigation }: MediaProps) {
         </View>
 
         {/* Arrow */}
-        <FontAwesome5
+        <Icon
           name="chevron-right"
           size={normalize(16)}
           color={COLOR.GRAY}
-          iconStyle="solid"
+          solid
         />
       </View>
     </TouchableOpacity>
@@ -207,11 +207,11 @@ export default function Media({ navigation }: MediaProps) {
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="arrow-left"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
 
@@ -236,11 +236,11 @@ export default function Media({ navigation }: MediaProps) {
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="bars"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
       </View>
@@ -252,11 +252,11 @@ export default function Media({ navigation }: MediaProps) {
           alignItems: 'center',
         }}
       >
-        <FontAwesome5
+        <Icon
           name="share-alt"
           size={normalize(40)}
           color={COLOR.PRIMARY}
-          iconStyle="solid"
+          solid
           style={{ marginBottom: normalize(10) }}
         />
         <Text

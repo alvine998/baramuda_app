@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
-import { FontAwesome5 } from '@react-native-vector-icons/fontawesome5';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import Toast from 'react-native-toast-message';
 
 interface ProductDetailProps {
@@ -85,20 +85,20 @@ export default function ProductDetail({ navigation, route }: ProductDetailProps)
 
     for (let i = 0; i < fullStars; i++) {
       stars.push(
-        <FontAwesome5 key={i} name="star" size={normalize(14)} color="#FFD700" iconStyle="solid" />
+        <Icon key={i} name="star" size={normalize(14)} color="#FFD700" solid />
       );
     }
 
     if (hasHalfStar) {
       stars.push(
-        <FontAwesome5 key="half" name="star-half-alt" size={normalize(14)} color="#FFD700" iconStyle="solid" />
+        <Icon key="half" name="star-half-alt" size={normalize(14)} color="#FFD700" solid />
       );
     }
 
     const remainingStars = 5 - Math.ceil(rating);
     for (let i = 0; i < remainingStars; i++) {
       stars.push(
-        <FontAwesome5 key={`empty-${i}`} name="star" size={normalize(14)} color="#E5E5E5" iconStyle="regular" />
+        <Icon key={`empty-${i}`} name="star" size={normalize(14)} color="#E5E5E5" />
       );
     }
 
@@ -132,11 +132,11 @@ export default function ProductDetail({ navigation, route }: ProductDetailProps)
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="arrow-left"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
 
@@ -160,11 +160,11 @@ export default function ProductDetail({ navigation, route }: ProductDetailProps)
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="heart"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
       </View>
@@ -275,7 +275,7 @@ export default function ProductDetail({ navigation, route }: ProductDetailProps)
 
           {/* Stock Info */}
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <FontAwesome5 name="box" size={normalize(14)} color={COLOR.SUCCESS} iconStyle="solid" />
+            <Icon name="box" size={normalize(14)} color={COLOR.SUCCESS} solid />
             <Text
               style={{
                 fontSize: normalize(12),
@@ -396,7 +396,7 @@ export default function ProductDetail({ navigation, route }: ProductDetailProps)
               }}
               onPress={() => setQuantity(Math.max(1, quantity - 1))}
             >
-              <FontAwesome5 name="minus" size={normalize(14)} color={COLOR.SECONDARY} iconStyle="solid" />
+              <Icon name="minus" size={normalize(14)} color={COLOR.SECONDARY} solid />
             </TouchableOpacity>
             <TextInput
               style={{
@@ -429,7 +429,7 @@ export default function ProductDetail({ navigation, route }: ProductDetailProps)
               }}
               onPress={() => setQuantity(Math.min(currentProduct.stock || 99, quantity + 1))}
             >
-              <FontAwesome5 name="plus" size={normalize(14)} color={COLOR.SECONDARY} iconStyle="solid" />
+              <Icon name="plus" size={normalize(14)} color={COLOR.SECONDARY} solid />
             </TouchableOpacity>
           </View>
         </View>
@@ -454,7 +454,7 @@ export default function ProductDetail({ navigation, route }: ProductDetailProps)
             }}
             onPress={handleAddToCart}
           >
-            <FontAwesome5 name="shopping-cart" size={normalize(16)} color={COLOR.PRIMARY} iconStyle="solid" />
+            <Icon name="shopping-cart" size={normalize(16)} color={COLOR.PRIMARY} solid />
             <Text
               style={{
                 fontSize: normalize(14),

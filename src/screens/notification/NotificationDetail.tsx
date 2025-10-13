@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
-import { FontAwesome5 } from '@react-native-vector-icons/fontawesome5';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 interface NotificationDetailProps {
   navigation: any;
@@ -175,11 +175,11 @@ export default function NotificationDetail({
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="arrow-left"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
 
@@ -234,11 +234,11 @@ export default function NotificationDetail({
               marginRight: normalize(15),
             }}
           >
-            <FontAwesome5
+            <Icon
               name={getNotificationIcon(currentNotification.type)}
               size={normalize(24)}
               color={COLOR.WHITE}
-              iconStyle="solid"
+              solid
             />
           </View>
 
@@ -356,11 +356,11 @@ export default function NotificationDetail({
                 marginRight: normalize(12),
               }}
             >
-              <FontAwesome5
+              <Icon
                 name="check-circle"
                 size={normalize(16)}
                 color={COLOR.WHITE}
-                iconStyle="solid"
+                solid
               />
             </View>
             <View style={{ flex: 1 }}>
@@ -414,11 +414,11 @@ export default function NotificationDetail({
                 marginRight: normalize(12),
               }}
             >
-              <FontAwesome5
+              <Icon
                 name="info-circle"
                 size={normalize(16)}
                 color={COLOR.WHITE}
-                iconStyle="solid"
+                solid
               />
             </View>
             <View style={{ flex: 1 }}>

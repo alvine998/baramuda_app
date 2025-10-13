@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
-import { FontAwesome5 } from '@react-native-vector-icons/fontawesome5';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 interface AboutUsProps {
   navigation: any;
@@ -91,11 +91,11 @@ Dengan demikian, Baramuda 08 berfungsi sebagai rumah stabilitas pemuda dan pemud
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="arrow-left"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
 
@@ -120,11 +120,11 @@ Dengan demikian, Baramuda 08 berfungsi sebagai rumah stabilitas pemuda dan pemud
             alignItems: 'center',
           }}
         >
-          <FontAwesome5
+          <Icon
             name="bars"
             size={normalize(16)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </TouchableOpacity>
       </View>
@@ -158,11 +158,11 @@ Dengan demikian, Baramuda 08 berfungsi sebagai rumah stabilitas pemuda dan pemud
             marginBottom: normalize(20),
           }}
         >
-          <FontAwesome5
+          <Icon
             name="building"
             size={normalize(40)}
             color={COLOR.SECONDARY}
-            iconStyle="solid"
+            solid
           />
         </View>
         <Text
@@ -334,11 +334,11 @@ Dengan demikian, Baramuda 08 berfungsi sebagai rumah stabilitas pemuda dan pemud
                   marginBottom: normalize(10),
                 }}
               >
-                <FontAwesome5
+                <Icon
                   name={value.icon}
                   size={normalize(20)}
                   color={COLOR.SECONDARY}
-                  iconStyle="solid"
+                  solid
                 />
               </View>
               <Text
@@ -468,25 +468,25 @@ Dengan demikian, Baramuda 08 berfungsi sebagai rumah stabilitas pemuda dan pemud
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: normalize(12) }}>
-            <FontAwesome5 name="envelope" size={normalize(16)} color={COLOR.PRIMARY} iconStyle="solid" style={{ marginRight: normalize(12) }} />
+            <Icon name="envelope" size={normalize(16)} color={COLOR.PRIMARY} solid style={{ marginRight: normalize(12) }} />
             <Text style={{ fontSize: normalize(14), color: COLOR.DARK_GRAY }}>
               {companyInfo.contact.email}
             </Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: normalize(12) }}>
-            <FontAwesome5 name="phone" size={normalize(16)} color={COLOR.PRIMARY} iconStyle="solid" style={{ marginRight: normalize(12) }} />
+            <Icon name="phone" size={normalize(16)} color={COLOR.PRIMARY} solid style={{ marginRight: normalize(12) }} />
             <Text style={{ fontSize: normalize(14), color: COLOR.DARK_GRAY }}>
               {companyInfo.contact.phone}
             </Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: normalize(12) }}>
-            <FontAwesome5 name="map-marker-alt" size={normalize(16)} color={COLOR.PRIMARY} iconStyle="solid" style={{ marginRight: normalize(12), marginTop: normalize(2) }} />
+            <Icon name="map-marker-alt" size={normalize(16)} color={COLOR.PRIMARY} solid style={{ marginRight: normalize(12), marginTop: normalize(2) }} />
             <Text style={{ fontSize: normalize(14), color: COLOR.DARK_GRAY, flex: 1 }}>
               {companyInfo.contact.address}
             </Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <FontAwesome5 name="globe-asia" size={normalize(16)} color={COLOR.PRIMARY} iconStyle="solid" style={{ marginRight: normalize(12) }} />
+            <Icon name="globe-asia" size={normalize(16)} color={COLOR.PRIMARY} solid style={{ marginRight: normalize(12) }} />
             <Text style={{ fontSize: normalize(14), color: COLOR.DARK_GRAY }}>
               {companyInfo.contact.website}
             </Text>

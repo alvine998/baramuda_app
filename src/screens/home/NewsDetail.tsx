@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, StatusBar, Dimensions } from 'react-native';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
-import { FontAwesome5 } from '@react-native-vector-icons/fontawesome5';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 interface NewsDetailProps {
   navigation: any;
@@ -10,11 +10,11 @@ interface NewsDetailProps {
 }
 
 export default function NewsDetail({ navigation, route }: NewsDetailProps) {
-  // Get news data from route params (you can customize this based on your needs)
+  const { width } = Dimensions.get('window');
   const { newsId } = route.params || {};
   const { newsTitle, newsContent, newsImage } = route.params || {};
 
-  // Sample detailed news content (you can replace this with dynamic data)
+  // Sample detailed news content with enhanced data
   const sampleNewsData = {
     id: newsId || 1,
     title: newsTitle || 'Update Fitur Terbaru Baramuda App',
@@ -46,182 +46,361 @@ export default function NewsDetail({ navigation, route }: NewsDetailProps) {
       Untuk informasi lebih lanjut tentang update ini dan fitur-fitur lainnya, silakan kunjungi halaman bantuan atau hubungi customer service kami.
     `,
     author: 'Tim Baramuda',
+    authorAvatar: 'https://via.placeholder.com/40x40/4A90E2/FFFFFF?text=TB',
     date: '15 Oktober 2024',
-    readTime: '5 menit baca'
+    readTime: '5 menit baca',
+    category: 'Teknologi',
+    views: 1250,
+    likes: 89,
+    shares: 23
   };
 
   return (
-    <ScrollView
-      style={{
-        flex: 1,
-        backgroundColor: COLOR.WHITE,
-      }}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingHorizontal: normalize(20),
-          paddingTop: normalize(50),
-          paddingBottom: normalize(20),
-          backgroundColor: COLOR.SECONDARY,
-          borderBottomLeftRadius: normalize(20),
-          borderBottomRightRadius: normalize(20),
-        }}
+    <View style={{ flex: 1, backgroundColor: COLOR.WHITE }}>
+      <StatusBar backgroundColor={COLOR.PRIMARY} barStyle="light-content" />
+      
+      <ScrollView
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
       >
-        {/* Back Button */}
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{
-            width: normalize(40),
-            height: normalize(40),
-            borderRadius: normalize(20),
-            backgroundColor: COLOR.PRIMARY,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <FontAwesome5
-            name="arrow-left"
-            size={normalize(16)}
-            color={COLOR.SECONDARY}
-            iconStyle="solid"
+        {/* Hero Image with Gradient Overlay */}
+        <View style={{ position: 'relative' }}>
+          <Image
+            source={{ uri: sampleNewsData.image }}
+            style={{
+              width: '100%',
+              height: normalize(280),
+              resizeMode: 'cover',
+            }}
           />
-        </TouchableOpacity>
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            }}
+          />
+          
+          {/* Header with Back Button */}
+          <View
+            style={{
+              position: 'absolute',
+              top: normalize(50),
+              left: 0,
+              right: 0,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingHorizontal: normalize(20),
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{
+                width: normalize(44),
+                height: normalize(44),
+                borderRadius: normalize(22),
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+                  <Icon
+                    name="arrow-left"
+                    size={normalize(18)}
+                    color={COLOR.WHITE}
+                    solid
+                  />
+            </TouchableOpacity>
 
-        {/* Title */}
-        <Text
-          style={{
-            fontSize: normalize(18),
-            fontWeight: 'bold',
-            color: COLOR.PRIMARY,
-            flex: 1,
-            textAlign: 'center',
-            marginHorizontal: normalize(10),
-          }}
-        >
-          Detail Berita
-        </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TouchableOpacity
+                style={{
+                  width: normalize(44),
+                  height: normalize(44),
+                  borderRadius: normalize(22),
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginRight: normalize(10),
+                }}
+              >
+                  <Icon
+                    name="bookmark"
+                    size={normalize(18)}
+                    color={COLOR.WHITE}
+                    solid
+                  />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  width: normalize(44),
+                  height: normalize(44),
+                  borderRadius: normalize(22),
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                  <Icon
+                    name="share"
+                    size={normalize(18)}
+                    color={COLOR.WHITE}
+                    solid
+                  />
+              </TouchableOpacity>
+            </View>
+          </View>
 
-        {/* Placeholder for balance */}
-        <View style={{ width: normalize(40) }} />
-      </View>
-
-      {/* News Image */}
-      <View
-        style={{
-          margin: normalize(20),
-          borderRadius: normalize(15),
-          overflow: 'hidden',
-          elevation: 3,
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.1,
-          shadowRadius: 3.84,
-        }}
-      >
-        <Image
-          source={{ uri: sampleNewsData.image }}
-          style={{
-            width: '100%',
-            height: normalize(200),
-            resizeMode: 'cover',
-          }}
-        />
-      </View>
-
-      {/* News Content */}
-      <View
-        style={{
-          paddingHorizontal: normalize(20),
-          paddingBottom: normalize(30),
-        }}
-      >
-        {/* News Meta */}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: normalize(15),
-            paddingBottom: normalize(15),
-            borderBottomWidth: 1,
-            borderBottomColor: '#E5E5E5',
-          }}
-        >
-          <View>
+          {/* Category Badge */}
+          <View
+            style={{
+              position: 'absolute',
+              top: normalize(100),
+              left: normalize(20),
+              backgroundColor: COLOR.PRIMARY,
+              paddingHorizontal: normalize(12),
+              paddingVertical: normalize(6),
+              borderRadius: normalize(20),
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.3,
+              shadowRadius: 4,
+              elevation: 4,
+            }}
+          >
             <Text
               style={{
                 fontSize: normalize(12),
-                color: COLOR.GRAY,
-                marginBottom: normalize(4),
+                fontWeight: '600',
+                color: COLOR.WHITE,
               }}
             >
-              Penulis: {sampleNewsData.author}
-            </Text>
-            <Text
-              style={{
-                fontSize: normalize(12),
-                color: COLOR.GRAY,
-              }}
-            >
-              {sampleNewsData.date} • {sampleNewsData.readTime}
+              {sampleNewsData.category}
             </Text>
           </View>
         </View>
 
-        {/* News Title */}
-        <Text
+        {/* Content Card */}
+        <View
           style={{
-            fontSize: normalize(24),
-            fontWeight: 'bold',
-            color: COLOR.PRIMARY,
-            marginBottom: normalize(15),
-            lineHeight: normalize(32),
+            backgroundColor: COLOR.WHITE,
+            borderTopLeftRadius: normalize(24),
+            borderTopRightRadius: normalize(24),
+            marginTop: normalize(-24),
+            paddingTop: normalize(24),
+            paddingHorizontal: normalize(20),
+            paddingBottom: normalize(30),
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: -4,
+            },
+            shadowOpacity: 0.1,
+            shadowRadius: 12,
+            elevation: 8,
           }}
         >
-          {sampleNewsData.title}
-        </Text>
+          {/* Author Info */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: normalize(20),
+            }}
+          >
+            <Image
+              source={{ uri: sampleNewsData.authorAvatar }}
+              style={{
+                width: normalize(48),
+                height: normalize(48),
+                borderRadius: normalize(24),
+                marginRight: normalize(12),
+              }}
+            />
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  fontSize: normalize(16),
+                  fontWeight: '600',
+                  color: COLOR.PRIMARY,
+                  marginBottom: normalize(4),
+                }}
+              >
+                {sampleNewsData.author}
+              </Text>
+              <Text
+                style={{
+                  fontSize: normalize(13),
+                  color: COLOR.GRAY,
+                }}
+              >
+                {sampleNewsData.date} • {sampleNewsData.readTime}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: '#F8F9FA',
+                paddingHorizontal: normalize(12),
+                paddingVertical: normalize(6),
+                borderRadius: normalize(20),
+              }}
+            >
+                    <Icon
+                      name="eye"
+                      size={normalize(12)}
+                      color={COLOR.GRAY}
+                      solid
+                      style={{ marginRight: normalize(4) }}
+                    />
+              <Text
+                style={{
+                  fontSize: normalize(12),
+                  color: COLOR.GRAY,
+                }}
+              >
+                {sampleNewsData.views}
+              </Text>
+            </View>
+          </View>
 
-        {/* News Content */}
-        <Text
-          style={{
-            fontSize: normalize(16),
-            color: COLOR.DARK_GRAY || '#333',
-            lineHeight: normalize(26),
-            textAlign: 'justify',
-          }}
-        >
-          {sampleNewsData.content}
-        </Text>
-      </View>
+          {/* News Title */}
+          <Text
+            style={{
+              fontSize: normalize(28),
+              fontWeight: 'bold',
+              color: COLOR.PRIMARY,
+              marginBottom: normalize(20),
+              lineHeight: normalize(36),
+            }}
+          >
+            {sampleNewsData.title}
+          </Text>
 
-      {/* Footer */}
-      <View
-        style={{
-          padding: normalize(20),
-          alignItems: 'center',
-          borderTopWidth: 1,
-          borderTopColor: '#E5E5E5',
-          marginTop: normalize(20),
-        }}
-      >
-        <Text
-          style={{
-            fontSize: normalize(12),
-            color: COLOR.GRAY,
-            textAlign: 'center',
-          }}
-        >
-          Baramuda App - Menyediakan informasi terbaru untuk Anda
-        </Text>
-      </View>
-    </ScrollView>
+          {/* News Content */}
+          <Text
+            style={{
+              fontSize: normalize(16),
+              color: '#2C3E50',
+              lineHeight: normalize(28),
+              textAlign: 'justify',
+              marginBottom: normalize(30),
+            }}
+          >
+            {sampleNewsData.content}
+          </Text>
+
+          {/* Action Buttons */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              paddingVertical: normalize(20),
+              borderTopWidth: 1,
+              borderTopColor: '#F0F0F0',
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: '#FFF5F5',
+                paddingHorizontal: normalize(20),
+                paddingVertical: normalize(12),
+                borderRadius: normalize(25),
+                borderWidth: 1,
+                borderColor: '#FED7D7',
+              }}
+            >
+                    <Icon
+                      name="heart"
+                      size={normalize(16)}
+                      color="#E53E3E"
+                      solid
+                      style={{ marginRight: normalize(8) }}
+                    />
+              <Text
+                style={{
+                  fontSize: normalize(14),
+                  fontWeight: '600',
+                  color: '#E53E3E',
+                }}
+              >
+                {sampleNewsData.likes}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: '#F0F9FF',
+                paddingHorizontal: normalize(20),
+                paddingVertical: normalize(12),
+                borderRadius: normalize(25),
+                borderWidth: 1,
+                borderColor: '#BEE3F8',
+              }}
+            >
+                    <Icon
+                      name="share"
+                      size={normalize(16)}
+                      color="#3182CE"
+                      solid
+                      style={{ marginRight: normalize(8) }}
+                    />
+              <Text
+                style={{
+                  fontSize: normalize(14),
+                  fontWeight: '600',
+                  color: '#3182CE',
+                }}
+              >
+                {sampleNewsData.shares}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: '#F0FFF4',
+                paddingHorizontal: normalize(20),
+                paddingVertical: normalize(12),
+                borderRadius: normalize(25),
+                borderWidth: 1,
+                borderColor: '#C6F6D5',
+              }}
+            >
+                    <Icon
+                      name="bookmark"
+                      size={normalize(16)}
+                      color="#38A169"
+                      solid
+                      style={{ marginRight: normalize(8) }}
+                    />
+              <Text
+                style={{
+                  fontSize: normalize(14),
+                  fontWeight: '600',
+                  color: '#38A169',
+                }}
+              >
+                Simpan
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+      </ScrollView>
+    </View>
   );
 }

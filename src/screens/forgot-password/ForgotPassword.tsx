@@ -2,7 +2,7 @@ import { View, Text, Image, TextInput, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import normalize from 'react-native-normalize';
 import { COLOR } from '../../utils/Color';
-import { FontAwesome5 } from '@react-native-vector-icons/fontawesome5';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import Toast from 'react-native-toast-message';
 
 interface ForgotPasswordProps {
@@ -61,8 +61,8 @@ export default function ForgotPassword({ navigation }: ForgotPasswordProps) {
         }}
       >
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <FontAwesome5
-            iconStyle="solid"
+          <Icon
+            solid
             name="chevron-left"
             size={normalize(20)}
             color={COLOR.PRIMARY}
