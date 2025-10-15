@@ -65,6 +65,10 @@ const BottomTabNavigator = () => {
           shadowOpacity: 0.1,
           shadowRadius: 8,
           elevation: 8,
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
         },
         tabBarLabelStyle: {
           fontSize: normalize(12),

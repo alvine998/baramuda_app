@@ -121,32 +121,29 @@ export default function Home({ navigation }: HomeProps) {
   };
 
   return (
-    <ScrollView
-      style={{
-        flex: 1,
-        backgroundColor: COLOR.WHITE,
-      }}
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          colors={[COLOR.PRIMARY]}
-          tintColor={COLOR.PRIMARY}
-          title="Menarik untuk memperbarui..."
-          titleColor={COLOR.PRIMARY}
-        />
-      }
-    >
-      {/* Header */}
+    <View style={{ flex: 1, backgroundColor: COLOR.WHITE }}>
+      {/* Sticky Header */}
       <View
         style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
           paddingHorizontal: normalize(20),
           paddingTop: normalize(50),
           paddingBottom: normalize(20),
           backgroundColor: COLOR.SECONDARY,
           borderBottomLeftRadius: normalize(20),
           borderBottomRightRadius: normalize(20),
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 2,
+          },
+          shadowOpacity: 0.1,
+          shadowRadius: 3.84,
+          elevation: 5,
         }}
       >
         {/* Header Row - Search Bar and User Icon */}
@@ -180,7 +177,7 @@ export default function Home({ navigation }: HomeProps) {
           >
             <Icon
               name="search"
-              size={normalize(16)}
+              size={normalize(20)}
               color={COLOR.GRAY}
               solid
               style={{ marginRight: normalize(10) }}
@@ -188,11 +185,11 @@ export default function Home({ navigation }: HomeProps) {
             <TextInput
               style={{
                 flex: 1,
-                fontSize: normalize(14),
+                fontSize: normalize(16),
                 color: COLOR.PRIMARY,
-                paddingVertical: normalize(5),
+                paddingVertical: normalize(10),
               }}
-              placeholder="Cari produk, layanan, atau informasi..."
+              placeholder="Cari produk atau layanan..."
               placeholderTextColor={COLOR.GRAY}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -206,7 +203,7 @@ export default function Home({ navigation }: HomeProps) {
               >
                 <Icon
                   name="times"
-                  size={normalize(14)}
+                  size={normalize(16)}
                   color={COLOR.GRAY}
                   solid
                 />
@@ -218,9 +215,9 @@ export default function Home({ navigation }: HomeProps) {
           <TouchableOpacity
             onPress={handleProfilePress}
             style={{
-              width: normalize(40),
-              height: normalize(40),
-              borderRadius: normalize(20),
+              width: normalize(50),
+              height: normalize(50),
+              borderRadius: normalize(50),
               backgroundColor: COLOR.PRIMARY,
               justifyContent: 'center',
               alignItems: 'center',
@@ -236,7 +233,29 @@ export default function Home({ navigation }: HomeProps) {
         </View>
       </View>
 
-      {/* Welcome Section */}
+      {/* Scrollable Content */}
+      <ScrollView
+        style={{
+          flex: 1,
+          backgroundColor: COLOR.WHITE,
+        }}
+        contentContainerStyle={{
+          paddingTop: normalize(120), // Account for sticky header height
+          paddingBottom: normalize(20), // Account for bottom tabs
+        }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[COLOR.PRIMARY]}
+            tintColor={COLOR.PRIMARY}
+            title="Menarik untuk memperbarui..."
+            titleColor={COLOR.PRIMARY}
+          />
+        }
+      >
+        {/* Welcome Section */}
       <View
         style={{
           paddingHorizontal: normalize(20),
@@ -334,7 +353,9 @@ export default function Home({ navigation }: HomeProps) {
             // },
             // shadowOpacity: 0.1,
             // shadowRadius: 12,
-            elevation: 1,
+            // elevation: 1,
+            borderWidth: 1,
+            borderColor: COLOR.SECONDARY,
           }}
         >
           <View
@@ -1067,7 +1088,7 @@ export default function Home({ navigation }: HomeProps) {
           </View>
         </TouchableOpacity>
       </View>
-
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
