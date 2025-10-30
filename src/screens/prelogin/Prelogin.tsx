@@ -1,5 +1,5 @@
-import { View, Text, Image, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
-import React from 'react';
+import { View, Text, Image, TouchableOpacity, StatusBar, Dimensions, BackHandler } from 'react-native';
+import React, { useEffect } from 'react';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
 
@@ -10,6 +10,20 @@ interface PreloginProps {
 }
 
 export default function Prelogin({ navigation }: PreloginProps) {
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        // Prevent going back from Prelogin screen
+        // Exit app instead
+        BackHandler.exitApp();
+        return true; // Prevent default behavior
+      }
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
   return (
     <View style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
       <StatusBar barStyle="dark-content" backgroundColor={COLOR.SECONDARY} />
@@ -202,6 +216,25 @@ export default function Prelogin({ navigation }: PreloginProps) {
               Kebijakan Privasi
             </Text>
           </Text>
+        </View>
+
+        {/* Continue without login */}
+        <View style={{ marginTop: normalize(30), alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('MainApp')}
+            style={{ paddingVertical: normalize(10) }}
+          >
+            <Text
+              style={{
+                fontSize: normalize(14),
+                color: COLOR.GRAY,
+                textAlign: 'center',
+                textDecorationLine: 'underline',
+              }}
+            >
+              Lanjutkan sebagai tamu
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>

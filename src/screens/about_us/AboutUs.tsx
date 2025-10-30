@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -24,27 +18,33 @@ export default function AboutUs({ navigation }: AboutUsProps) {
 Organisasi ini beranggotakan para relawan yang sebelumnya menyatakan dukungannya kepada Prabowo Subianto sebagai calon presiden dan Gibran Rakabuming Raka sebagai calon wakil presiden.
 
 Dengan demikian, Baramuda 08 berfungsi sebagai rumah stabilitas pemuda dan pemudi Indonesia yang berusaha meningkatkan kualitas hidup masyarakat melalui dukungan kuat terhadap visi dan misi Prabowo-Gibran.`,
-    mission: 'Mendukung dan mensosialisasikan program-program Presiden Prabowo Subianto dalam mengawal asta cita untuk kemajuan Indonesia.',
-    vision: 'Menjadi organisasi relawan terdepan yang menghubungkan pemuda Indonesia dengan visi kepemimpinan Prabowo-Gibran untuk masa depan bangsa yang lebih baik.',
+    mission:
+      'Mendukung dan mensosialisasikan program-program Presiden Prabowo Subianto dalam mengawal asta cita untuk kemajuan Indonesia.',
+    vision:
+      'Menjadi organisasi relawan terdepan yang menghubungkan pemuda Indonesia dengan visi kepemimpinan Prabowo-Gibran untuk masa depan bangsa yang lebih baik.',
     values: [
       {
         title: 'Dedikasi',
-        description: 'Setia dan berkomitmen penuh dalam mendukung visi dan misi Prabowo-Gibran untuk Indonesia yang lebih baik.',
+        description:
+          'Setia dan berkomitmen penuh dalam mendukung visi dan misi Prabowo-Gibran untuk Indonesia yang lebih baik.',
         icon: 'heart' as any,
       },
       {
         title: 'Solidaritas',
-        description: 'Membangun kekuatan bersama melalui persatuan dan kesatuan dalam memperjuangkan cita-cita bangsa.',
+        description:
+          'Membangun kekuatan bersama melalui persatuan dan kesatuan dalam memperjuangkan cita-cita bangsa.',
         icon: 'users' as any,
       },
       {
         title: 'Inovasi',
-        description: 'Menggunakan cara-cara kreatif dan modern dalam mensosialisasikan program-program pemerintah.',
+        description:
+          'Menggunakan cara-cara kreatif dan modern dalam mensosialisasikan program-program pemerintah.',
         icon: 'lightbulb' as any,
       },
       {
         title: 'Integritas',
-        description: 'Bekerja dengan jujur, transparan, dan bertanggung jawab dalam setiap kegiatan organisasi.',
+        description:
+          'Bekerja dengan jujur, transparan, dan bertanggung jawab dalam setiap kegiatan organisasi.',
         icon: 'shield-alt',
       },
     ],
@@ -109,24 +109,7 @@ Dengan demikian, Baramuda 08 berfungsi sebagai rumah stabilitas pemuda dan pemud
           Tentang Kami
         </Text>
 
-        <TouchableOpacity
-          onPress={() => navigation.openDrawer()}
-          style={{
-            width: normalize(40),
-            height: normalize(40),
-            borderRadius: normalize(20),
-            backgroundColor: COLOR.PRIMARY,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <Icon
-            name="bars"
-            size={normalize(16)}
-            color={COLOR.SECONDARY}
-            solid
-          />
-        </TouchableOpacity>
+        <View style={{ width: normalize(40) }} />
       </View>
 
       {/* Logo Section */}
@@ -147,24 +130,14 @@ Dengan demikian, Baramuda 08 berfungsi sebagai rumah stabilitas pemuda dan pemud
           shadowRadius: 3.84,
         }}
       >
-        <View
+        <Image
+          source={require('../../assets/images/logo.png')}
           style={{
-            width: normalize(100),
-            height: normalize(100),
-            borderRadius: normalize(50),
-            backgroundColor: COLOR.PRIMARY,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginBottom: normalize(20),
+            width: normalize(80),
+            height: normalize(80),
+            borderRadius: normalize(40),
           }}
-        >
-          <Icon
-            name="building"
-            size={normalize(40)}
-            color={COLOR.SECONDARY}
-            solid
-          />
-        </View>
+        />
         <Text
           style={{
             fontSize: normalize(24),
@@ -407,7 +380,8 @@ Dengan demikian, Baramuda 08 berfungsi sebagai rumah stabilitas pemuda dan pemud
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                marginBottom: index === companyInfo.services.length - 1 ? 0 : normalize(12),
+                marginBottom:
+                  index === companyInfo.services.length - 1 ? 0 : normalize(12),
               }}
             >
               <View
@@ -467,26 +441,74 @@ Dengan demikian, Baramuda 08 berfungsi sebagai rumah stabilitas pemuda dan pemud
             shadowRadius: 2,
           }}
         >
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: normalize(12) }}>
-            <Icon name="envelope" size={normalize(16)} color={COLOR.PRIMARY} solid style={{ marginRight: normalize(12) }} />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: normalize(12),
+            }}
+          >
+            <Icon
+              name="envelope"
+              size={normalize(16)}
+              color={COLOR.PRIMARY}
+              solid
+              style={{ marginRight: normalize(12) }}
+            />
             <Text style={{ fontSize: normalize(14), color: COLOR.DARK_GRAY }}>
               {companyInfo.contact.email}
             </Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: normalize(12) }}>
-            <Icon name="phone" size={normalize(16)} color={COLOR.PRIMARY} solid style={{ marginRight: normalize(12) }} />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: normalize(12),
+            }}
+          >
+            <Icon
+              name="phone"
+              size={normalize(16)}
+              color={COLOR.PRIMARY}
+              solid
+              style={{ marginRight: normalize(12) }}
+            />
             <Text style={{ fontSize: normalize(14), color: COLOR.DARK_GRAY }}>
               {companyInfo.contact.phone}
             </Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: normalize(12) }}>
-            <Icon name="map-marker-alt" size={normalize(16)} color={COLOR.PRIMARY} solid style={{ marginRight: normalize(12), marginTop: normalize(2) }} />
-            <Text style={{ fontSize: normalize(14), color: COLOR.DARK_GRAY, flex: 1 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'flex-start',
+              marginBottom: normalize(12),
+            }}
+          >
+            <Icon
+              name="map-marker-alt"
+              size={normalize(16)}
+              color={COLOR.PRIMARY}
+              solid
+              style={{ marginRight: normalize(12), marginTop: normalize(2) }}
+            />
+            <Text
+              style={{
+                fontSize: normalize(14),
+                color: COLOR.DARK_GRAY,
+                flex: 1,
+              }}
+            >
               {companyInfo.contact.address}
             </Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Icon name="globe-asia" size={normalize(16)} color={COLOR.PRIMARY} solid style={{ marginRight: normalize(12) }} />
+            <Icon
+              name="globe-asia"
+              size={normalize(16)}
+              color={COLOR.PRIMARY}
+              solid
+              style={{ marginRight: normalize(12) }}
+            />
             <Text style={{ fontSize: normalize(14), color: COLOR.DARK_GRAY }}>
               {companyInfo.contact.website}
             </Text>

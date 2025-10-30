@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,11 +6,15 @@ import {
   ScrollView,
   Image,
   Alert,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Toast from 'react-native-toast-message';
+import { useAuth } from '../../hooks/useAuth';
+import api from '../../services/api';
 
 interface ProfileProps {
   navigation: any;
@@ -27,9 +31,51 @@ interface MenuItem {
 
 export default function Profile({ navigation }: ProfileProps) {
   const [isEditMode, setIsEditMode] = useState(false);
+  const { isAuthenticated, user } = useAuth();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [profile, setProfile] = useState<any>(null);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [editPayload, setEditPayload] = useState<{ name: string; email: string; phone: string }>({
+    name: '',
+    email: '',
+    phone: '',
+  });
 
-  // User profile data
-  const userProfile = {
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!isAuthenticated || !user?.id) return;
+      try {
+        setLoading(true);
+        const response = await api.get(`/users/${user.id}`);
+        setProfile(response.data?.data || null);
+      } catch (err) {
+        Toast.show({
+          type: 'error',
+          text1: 'Gagal memuat profil',
+          text2: 'Silakan coba lagi',
+          position: 'top',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [isAuthenticated, user?.id]);
+
+  // Initialize edit form values when entering edit mode or when profile changes
+  useEffect(() => {
+    if (isEditMode) {
+      setEditPayload({
+        name: (profile?.name ?? '').toString(),
+        email: (profile?.email ?? '').toString(),
+        phone: (profile?.phone ?? '').toString(),
+      });
+    }
+  }, [isEditMode, profile]);
+
+  // Default user profile data (will be overridden by API data if available)
+  const baseUserProfile = {
     name: 'Admin User',
     email: 'admin@baramuda08.id',
     phone: '+62 812 3456 7890',
@@ -43,175 +89,36 @@ export default function Profile({ navigation }: ProfileProps) {
     volunteerHours: 156,
   };
 
-  const menuItems: MenuItem[] = [
-    {
-      id: 1,
-      title: 'Edit Profil',
-      subtitle: 'Perbarui informasi pribadi',
-      icon: 'user-edit',
-      action: () => setIsEditMode(true),
-      color: COLOR.PRIMARY,
-    },
-    {
-      id: 2,
-      title: 'Aktivitas Relawan',
-      subtitle: `${userProfile.volunteerHours} jam kegiatan`,
-      icon: 'clock',
-      action: () => navigation.navigate('VolunteerActivity'),
-      color: COLOR.SUCCESS,
-    },
-    {
-      id: 3,
-      title: 'Pencapaian',
-      subtitle: `${userProfile.achievements} badge diperoleh`,
-      icon: 'trophy',
-      action: () => navigation.navigate('Achievements'),
-    },
-    {
-      id: 4,
-      title: 'Kontribusi Kampanye',
-      subtitle: 'Lihat dampak Anda',
-      icon: 'chart-line' as any,
-      action: () => navigation.navigate('Contributions'),
-      color: COLOR.INFO,
-    },
-    {
-      id: 5,
-      title: 'Pengaturan',
-      subtitle: 'Notifikasi, privasi, keamanan',
-      icon: 'cog',
-      action: () => navigation.navigate('Settings'),
-      color: COLOR.PRIMARY,
-    },
-    {
-      id: 6,
-      title: 'Bantuan & Dukungan',
-      subtitle: 'FAQ, kontak admin',
-      icon: 'question-circle',
-      action: () => navigation.navigate('Help'),
-      color: COLOR.WARNING,
-    },
-    {
-      id: 7,
-      title: 'Keluar',
-      subtitle: 'Keluar dari akun',
-      icon: 'sign-out-alt',
-      action: handleLogout,
-      color: COLOR.DANGER,
-    },
-  ];
+  const userProfile = {
+    ...baseUserProfile,
+    name: profile?.name ?? baseUserProfile.name,
+    email: profile?.email ?? baseUserProfile.email,
+    phone: profile?.phone ?? baseUserProfile.phone,
+    joinDate: profile?.createdAt
+      ? new Date(profile.createdAt).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+      : baseUserProfile.joinDate,
+  };
 
-  function handleLogout() {
-    Alert.alert(
-      'Keluar',
-      'Apakah Anda yakin ingin keluar dari akun?',
-      [
-        {
-          text: 'Batal',
-          style: 'cancel',
-        },
-        {
-          text: 'Keluar',
-          style: 'destructive',
-          onPress: () => {
-            Toast.show({
-              type: 'info',
-              text1: 'Berhasil Keluar',
-              text2: 'Sampai jumpa lagi!',
-              position: 'top',
-            });
-            // Navigate back to Prelogin
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Prelogin' }],
-            });
-          },
-        },
-      ]
-    );
-  }
-
-  const renderMenuItem = ({ item }: { item: MenuItem }) => (
-    <TouchableOpacity
-      style={{
-        backgroundColor: COLOR.WHITE,
-        borderRadius: normalize(15),
-        marginBottom: normalize(12),
-        overflow: 'hidden',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 1,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-      }}
-      onPress={item.action}
-      activeOpacity={0.9}
-    >
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          padding: normalize(20),
-        }}
-      >
-        {/* Icon */}
-        <View
-          style={{
-            width: normalize(50),
-            height: normalize(50),
-            borderRadius: normalize(25),
-            backgroundColor: item.color || COLOR.PRIMARY,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: normalize(15),
-          }}
-        >
-          <Icon
-            name={item.icon as any}
-            size={normalize(20)}
-            color={COLOR.WHITE}
-            solid
-          />
-        </View>
-
-        {/* Content */}
-        <View style={{ flex: 1 }}>
-          <Text
-            style={{
-              fontSize: normalize(16),
-              fontWeight: 'bold',
-              color: COLOR.PRIMARY,
-              marginBottom: normalize(4),
-            }}
-          >
-            {item.title}
-          </Text>
-          {item.subtitle && (
-            <Text
-              style={{
-                fontSize: normalize(12),
-                color: COLOR.GRAY,
-                lineHeight: normalize(16),
-              }}
-            >
-              {item.subtitle}
-            </Text>
-          )}
-        </View>
-
-        {/* Arrow */}
-        <Icon
-          name="chevron-right"
-          size={normalize(14)}
-          color={COLOR.GRAY}
-          solid
-        />
-      </View>
-    </TouchableOpacity>
-  );
+  const onSaveProfile = async () => {
+    if (!user?.id) return;
+    // simple validation
+    if (!editPayload.name || !editPayload.email) {
+      Toast.show({ type: 'error', text1: 'Nama dan email wajib diisi', position: 'top' });
+      return;
+    }
+    try {
+      setSaving(true);
+      const res = await api.put(`/users/${user.id}`, editPayload);
+      const updated = res.data?.data || editPayload;
+      setProfile((prev: any) => ({ ...(prev || {}), ...updated }));
+      Toast.show({ type: 'success', text1: 'Profil diperbarui', position: 'top' });
+      setIsEditMode(false);
+    } catch (e: any) {
+      Toast.show({ type: 'error', text1: 'Gagal menyimpan', text2: 'Coba lagi nanti', position: 'top' });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F8F9FA' }}>
@@ -259,7 +166,7 @@ export default function Profile({ navigation }: ProfileProps) {
         </Text>
 
         <TouchableOpacity
-          onPress={() => navigation.openDrawer()}
+          onPress={() => setIsEditMode(true)}
           style={{
             width: normalize(40),
             height: normalize(40),
@@ -270,7 +177,7 @@ export default function Profile({ navigation }: ProfileProps) {
           }}
         >
           <Icon
-            name="bars"
+            name="pencil-alt"
             size={normalize(16)}
             color={COLOR.SECONDARY}
             solid
@@ -339,156 +246,6 @@ export default function Profile({ navigation }: ProfileProps) {
             }}
           >
             {userProfile.email}
-          </Text>
-        </View>
-
-        {/* Stats Cards */}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-            marginBottom: normalize(20),
-          }}
-        >
-          <View style={{ alignItems: 'center' }}>
-            <View
-              style={{
-                width: normalize(50),
-                height: normalize(50),
-                borderRadius: normalize(25),
-                backgroundColor: COLOR.PRIMARY,
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginBottom: normalize(8),
-              }}
-            >
-              <Icon
-                name="star"
-                size={normalize(20)}
-                color={COLOR.SECONDARY}
-                solid
-              />
-            </View>
-            <Text
-              style={{
-                fontSize: normalize(16),
-                fontWeight: 'bold',
-                color: COLOR.PRIMARY,
-              }}
-            >
-              {userProfile.points}
-            </Text>
-            <Text
-              style={{
-                fontSize: normalize(10),
-                color: COLOR.GRAY,
-              }}
-            >
-              Poin
-            </Text>
-          </View>
-
-          <View style={{ alignItems: 'center' }}>
-            <View
-              style={{
-                width: normalize(50),
-                height: normalize(50),
-                borderRadius: normalize(25),
-                backgroundColor: COLOR.SUCCESS,
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginBottom: normalize(8),
-              }}
-            >
-              <Icon
-                name="trophy"
-                size={normalize(20)}
-                color={COLOR.WHITE}
-                solid
-              />
-            </View>
-            <Text
-              style={{
-                fontSize: normalize(16),
-                fontWeight: 'bold',
-                color: COLOR.PRIMARY,
-              }}
-            >
-              {userProfile.achievements}
-            </Text>
-            <Text
-              style={{
-                fontSize: normalize(10),
-                color: COLOR.GRAY,
-              }}
-            >
-              Badge
-            </Text>
-          </View>
-
-          <View style={{ alignItems: 'center' }}>
-            <View
-              style={{
-                width: normalize(50),
-                height: normalize(50),
-                borderRadius: normalize(25),
-                backgroundColor: COLOR.INFO,
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginBottom: normalize(8),
-              }}
-            >
-              <Icon
-                name="clock"
-                size={normalize(20)}
-                color={COLOR.WHITE}
-                solid
-              />
-            </View>
-            <Text
-              style={{
-                fontSize: normalize(16),
-                fontWeight: 'bold',
-                color: COLOR.PRIMARY,
-              }}
-            >
-              {userProfile.volunteerHours}
-            </Text>
-            <Text
-              style={{
-                fontSize: normalize(10),
-                color: COLOR.GRAY,
-              }}
-            >
-              Jam
-            </Text>
-          </View>
-        </View>
-
-        {/* Level Badge */}
-        <View
-          style={{
-            alignItems: 'center',
-            padding: normalize(15),
-            backgroundColor: '#FFF8DC',
-            borderRadius: normalize(15),
-          }}
-        >
-          <Icon
-            name="crown"
-            size={normalize(20)}
-            color="#FFD700"
-            solid
-            style={{ marginBottom: normalize(8) }}
-          />
-          <Text
-            style={{
-              fontSize: normalize(14),
-              fontWeight: 'bold',
-              color: COLOR.PRIMARY,
-            }}
-          >
-            Level {userProfile.level}
           </Text>
         </View>
       </View>
@@ -568,15 +325,6 @@ export default function Profile({ navigation }: ProfileProps) {
         </View>
       </View>
 
-      {/* Menu Items */}
-      <View style={{ paddingHorizontal: normalize(20) }}>
-        {menuItems.map((item) => (
-          <View key={item.id}>
-            {renderMenuItem({ item })}
-          </View>
-        ))}
-      </View>
-
       {/* Footer */}
       <View
         style={{
@@ -594,6 +342,129 @@ export default function Profile({ navigation }: ProfileProps) {
           Baramuda 08 - Profil Relawan
         </Text>
       </View>
+
+      {/* Edit Modal */}
+      <Modal visible={isEditMode} transparent animationType="fade" onRequestClose={() => setIsEditMode(false)}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: normalize(20),
+          }}
+        >
+          <View
+            style={{
+              width: '100%',
+              backgroundColor: COLOR.WHITE,
+              borderRadius: normalize(16),
+              padding: normalize(20),
+            }}
+          >
+            <Text
+              style={{
+                fontSize: normalize(18),
+                fontWeight: 'bold',
+                color: COLOR.PRIMARY,
+                marginBottom: normalize(16),
+              }}
+            >
+              Edit Profil
+            </Text>
+
+            {/* Name */}
+            <Text style={{ fontSize: normalize(12), color: COLOR.DARK_GRAY, marginBottom: normalize(6) }}>Nama</Text>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: '#E5E5E5',
+                borderRadius: normalize(10),
+                marginBottom: normalize(12),
+                paddingHorizontal: normalize(12),
+              }}
+            >
+              <TextInput
+                value={editPayload.name}
+                onChangeText={(v) => setEditPayload((p) => ({ ...p, name: v }))}
+                placeholder="Nama lengkap"
+                style={{ height: normalize(44), fontSize: normalize(14), color: COLOR.DARK_GRAY }}
+              />
+            </View>
+
+            {/* Email */}
+            <Text style={{ fontSize: normalize(12), color: COLOR.DARK_GRAY, marginBottom: normalize(6) }}>Email</Text>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: '#E5E5E5',
+                borderRadius: normalize(10),
+                marginBottom: normalize(12),
+                paddingHorizontal: normalize(12),
+              }}
+            >
+              <TextInput
+                value={editPayload.email}
+                onChangeText={(v) => setEditPayload((p) => ({ ...p, email: v }))}
+                placeholder="Email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                style={{ height: normalize(44), fontSize: normalize(14), color: COLOR.DARK_GRAY }}
+              />
+            </View>
+
+            {/* Phone */}
+            <Text style={{ fontSize: normalize(12), color: COLOR.DARK_GRAY, marginBottom: normalize(6) }}>Nomor Telepon</Text>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: '#E5E5E5',
+                borderRadius: normalize(10),
+                marginBottom: normalize(16),
+                paddingHorizontal: normalize(12),
+              }}
+            >
+              <TextInput
+                value={editPayload.phone}
+                onChangeText={(v) => setEditPayload((p) => ({ ...p, phone: v }))}
+                placeholder="Nomor telepon"
+                keyboardType="phone-pad"
+                style={{ height: normalize(44), fontSize: normalize(14), color: COLOR.DARK_GRAY }}
+              />
+            </View>
+
+            {/* Actions */}
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+              <TouchableOpacity
+                onPress={() => setIsEditMode(false)}
+                style={{
+                  paddingVertical: normalize(12),
+                  paddingHorizontal: normalize(16),
+                  borderRadius: normalize(10),
+                  backgroundColor: '#EAEAEA',
+                  marginRight: normalize(10),
+                }}
+              >
+                <Text style={{ color: COLOR.DARK_GRAY, fontWeight: '600' }}>Batal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={onSaveProfile}
+                disabled={saving}
+                style={{
+                  paddingVertical: normalize(12),
+                  paddingHorizontal: normalize(16),
+                  borderRadius: normalize(10),
+                  backgroundColor: saving ? '#9AA6A6' : COLOR.PRIMARY,
+                }}
+              >
+                <Text style={{ color: COLOR.SECONDARY, fontWeight: '600' }}>
+                  {saving ? 'Menyimpan...' : 'Simpan'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }

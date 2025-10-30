@@ -14,6 +14,7 @@ import AboutUs from '../screens/about_us/AboutUs';
 import Profile from '../screens/profile/Profile';
 import Notification from '../screens/notification/Notification';
 import NotificationDetail from '../screens/notification/NotificationDetail';
+import Event from '../screens/event/Event';
 
 // Import Bottom Tab Navigator
 import BottomTabNavigator from './BottomTabNavigator';
@@ -32,6 +33,7 @@ export type RootStackParamList = {
   Profile: undefined;
   Notification: undefined;
   NotificationDetail: { notificationId?: number; title?: string; content?: string };
+  Event: undefined;
 };
 
 // Create navigators
@@ -58,6 +60,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="Notification" component={Notification} />
         <Stack.Screen name="NotificationDetail" component={NotificationDetail} />
+        <Stack.Screen name="Event" component={Event} />
       </Stack.Navigator>
     </NavigationContainer>
   );

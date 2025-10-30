@@ -1,9 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, Animated, Dimensions, RefreshControl, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, Animated, Dimensions, RefreshControl, TextInput, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Toast from 'react-native-toast-message';
+import { requireAuth } from '../../utils/authGuard';
+import { useAuth } from '../../hooks/useAuth';
 
 interface HomeProps {
   navigation: any;
@@ -16,6 +19,33 @@ export default function Home({ navigation }: HomeProps) {
   const { width } = Dimensions.get('window');
   const slideWidth = width - normalize(40); // Account for container margins
   const slideAnim = React.useRef(new Animated.Value(0)).current;
+  const insets = useSafeAreaInsets();
+  const { isAuthenticated, user, isLoading: authLoading } = useAuth();
+  
+  // Additional padding for Samsung devices and devices with gesture navigation
+  const getBottomPadding = () => {
+    if (Platform.OS === 'android') {
+      // For Android devices, especially Samsung Galaxy Z Fold
+      return Math.max(insets.bottom, normalize(16));
+    }
+    return insets.bottom;
+  };
+
+  // Handle protected feature (requires login)
+  const handleProtectedFeature = async (featureName: string) => {
+    const proceed = await requireAuth(
+      navigation,
+      () => {
+        // This callback executes if user is already authenticated or after login
+        if (featureName === 'Event') {
+          navigation.navigate('Event');
+          return;
+        }
+        Toast.show({ type: 'success', text1: 'Akses Diberikan', text2: `Mengakses ${featureName}...`, position: 'top' });
+      },
+      `Fitur ${featureName} memerlukan login terlebih dahulu`
+    );
+  };
 
   const carouselData = [
     {
@@ -114,10 +144,12 @@ export default function Home({ navigation }: HomeProps) {
     }, 2000); // Simulate 2 second refresh time
   }, [slideAnim]);
 
+  // Get user name from auth or use guest
+  const displayName = isAuthenticated && user ? user.name : 'Tamu';
   const currentUser = {
-    name: 'Admin User',
-    email: 'admin@gmail.com',
-    joinDate: 'Oktober 2024',
+    name: displayName,
+    email: isAuthenticated && user ? user.email : '',
+    joinDate: isAuthenticated && user ? new Date(user.createdAt).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) : '',
   };
 
   return (
@@ -241,7 +273,7 @@ export default function Home({ navigation }: HomeProps) {
         }}
         contentContainerStyle={{
           paddingTop: normalize(120), // Account for sticky header height
-          paddingBottom: normalize(20), // Account for bottom tabs
+          paddingBottom: normalize(70) + getBottomPadding() + normalize(20), // Account for bottom tabs + safe area
         }}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -291,33 +323,35 @@ export default function Home({ navigation }: HomeProps) {
               Apa yang ingin Anda lakukan hari ini?
             </Text>
           </View>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Login')}
-            style={{
-              backgroundColor: COLOR.PRIMARY,
-              paddingHorizontal: normalize(20),
-              paddingVertical: normalize(12),
-              borderRadius: normalize(25),
-              shadowColor: COLOR.PRIMARY,
-              shadowOffset: {
-                width: 0,
-                height: 4,
-              },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 8,
-            }}
-          >
-            <Text
+          {!isAuthenticated && (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Login')}
               style={{
-                fontSize: normalize(14),
-                fontWeight: 'bold',
-                color: COLOR.WHITE,
+                backgroundColor: COLOR.PRIMARY,
+                paddingHorizontal: normalize(20),
+                paddingVertical: normalize(12),
+                borderRadius: normalize(25),
+                shadowColor: COLOR.PRIMARY,
+                shadowOffset: {
+                  width: 0,
+                  height: 4,
+                },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 8,
               }}
             >
-              Login
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: normalize(14),
+                  fontWeight: 'bold',
+                  color: COLOR.WHITE,
+                }}
+              >
+                Login
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -412,13 +446,14 @@ export default function Home({ navigation }: HomeProps) {
               </Text>
             </TouchableOpacity>
 
-            {/* Event */}
+            {/* Event - Protected Feature (Requires Login) */}
             <TouchableOpacity
               style={{
                 width: '22%',
                 alignItems: 'center',
                 marginBottom: normalize(20),
               }}
+              onPress={() => handleProtectedFeature('Event')}
             >
               <View
                 style={{
@@ -437,6 +472,7 @@ export default function Home({ navigation }: HomeProps) {
                   shadowOpacity: 0.3,
                   shadowRadius: 8,
                   elevation: 8,
+                  position: 'relative',
                 }}
               >
                 <Icon
@@ -445,6 +481,28 @@ export default function Home({ navigation }: HomeProps) {
                   color={COLOR.WHITE}
                   solid
                 />
+                {!isAuthenticated && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: -2,
+                      right: -2,
+                      backgroundColor: COLOR.PRIMARY,
+                      borderRadius: normalize(10),
+                      width: normalize(20),
+                      height: normalize(20),
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Icon
+                      name="lock"
+                      size={normalize(10)}
+                      color={COLOR.WHITE}
+                      solid
+                    />
+                  </View>
+                )}
               </View>
               <Text
                 style={{

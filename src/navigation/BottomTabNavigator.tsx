@@ -1,5 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { COLOR } from '../utils/Color';
 import normalize from 'react-native-normalize';
@@ -21,6 +23,17 @@ export type BottomTabParamList = {
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 const BottomTabNavigator = () => {
+  const insets = useSafeAreaInsets();
+  
+  // Additional padding for Samsung devices and devices with gesture navigation
+  const getBottomPadding = () => {
+    if (Platform.OS === 'android') {
+      // For Android devices, especially Samsung Galaxy Z Fold
+      return Math.max(insets.bottom, normalize(16));
+    }
+    return insets.bottom;
+  };
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -55,8 +68,8 @@ const BottomTabNavigator = () => {
           borderTopWidth: 1,
           borderTopColor: '#F0F0F0',
           paddingTop: normalize(8),
-          paddingBottom: normalize(8),
-          height: normalize(70),
+          paddingBottom: getBottomPadding(),
+          height: normalize(70) + getBottomPadding(),
           shadowColor: '#000',
           shadowOffset: {
             width: 0,
@@ -69,6 +82,7 @@ const BottomTabNavigator = () => {
           bottom: 0,
           left: 0,
           right: 0,
+          marginBottom: 0,
         },
         tabBarLabelStyle: {
           fontSize: normalize(12),

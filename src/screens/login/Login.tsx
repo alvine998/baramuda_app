@@ -7,12 +7,16 @@ import {
   StatusBar,
   Dimensions,
   ScrollView,
+  BackHandler,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import normalize from 'react-native-normalize';
 import { COLOR } from '../../utils/Color';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Toast from 'react-native-toast-message';
+import { CONFIG } from '../../config';
+import axios from 'axios';
+import { saveAuthData } from '../../services/storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,6 +25,19 @@ export default function Login({ navigation }: { navigation: any }) {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        // Navigate to Prelogin instead of going back
+        navigation.navigate('Prelogin');
+        return true; // Prevent default behavior
+      }
+    );
+
+    return () => backHandler.remove();
+  }, [navigation]);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -33,33 +50,95 @@ export default function Login({ navigation }: { navigation: any }) {
     }
 
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      // Check if email and password match the required credentials
-      if (email === 'admin@gmail.com' && password === 'admin1234') {
-        Toast.show({
-          type: 'success',
-          text1: 'Login Berhasil',
-          text2: 'Selamat datang kembali!',
-        });
-        // Navigate to MainApp after successful login
-        navigation.navigate('MainApp');
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Login Gagal',
-          text2: 'Email atau password salah',
-        });
+    try {
+      const response = await axios.post(
+        `${CONFIG.API_URL}/auth/login`,
+        {
+          email,
+          password,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log('Login successful:', response.data);
+      
+      // Extract and save auth data from response
+      if (response.data && response.data.data) {
+        const authData = {
+          user: response.data.data.user,
+          token: response.data.data.token,
+        };
+        
+        // Save to AsyncStorage
+        try {
+          await saveAuthData(authData);
+          console.log('Auth data saved to AsyncStorage');
+        } catch (storageError) {
+          console.error('Error saving auth data:', storageError);
+          Toast.show({
+            type: 'error',
+            text1: 'Warning',
+            text2: 'Gagal menyimpan data login',
+            position: 'top',
+          });
+        }
       }
+      
+      Toast.show({
+        type: 'success',
+        text1: 'Login Berhasil',
+        text2: 'Selamat datang kembali!',
+      });
+      
+      // Navigate to MainApp after successful login
       setIsLoading(false);
-    }, 1500);
+      navigation.navigate('MainApp');
+    } catch (error: any) {
+      console.log('Login error:', error);
+      
+      // Extract error message from API response
+      let errorMessage = 'Login gagal, coba lagi';
+      
+      if (error.response) {
+        // Server responded with error status
+        const status = error.response.status;
+        const errorData = error.response.data;
+        
+        if (errorData && errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData && errorData.error) {
+          errorMessage = errorData.error;
+        } else if (status === 400) {
+          errorMessage = 'Email atau password tidak valid';
+        } else if (status === 401) {
+          errorMessage = 'Email atau password salah';
+        } else if (status === 404) {
+          errorMessage = 'Pengguna tidak ditemukan';
+        } else if (status === 500) {
+          errorMessage = 'Server error, coba lagi nanti';
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        errorMessage = 'Tidak dapat terhubung ke server';
+      }
+      
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: errorMessage,
+        position: 'top',
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
       <StatusBar barStyle="dark-content" backgroundColor={COLOR.SECONDARY} />
-      
+
       {/* Header with gradient */}
       <View
         style={{
@@ -115,7 +194,10 @@ export default function Login({ navigation }: { navigation: any }) {
 
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: normalize(30), marginTop: normalize(40) }}
+        contentContainerStyle={{
+          paddingBottom: normalize(30),
+          marginTop: normalize(40),
+        }}
         showsVerticalScrollIndicator={false}
       >
         {/* Form Container */}
@@ -321,15 +403,15 @@ export default function Login({ navigation }: { navigation: any }) {
             Belum punya akun?{' '}
           </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                <Text
-                  style={{
-                    fontSize: normalize(14),
-                    fontWeight: '600',
-                    color: COLOR.PRIMARY,
-                  }}
-                >
-                  Daftar Sekarang
-                </Text>
+            <Text
+              style={{
+                fontSize: normalize(14),
+                fontWeight: '600',
+                color: COLOR.PRIMARY,
+              }}
+            >
+              Daftar Sekarang
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

@@ -1,9 +1,19 @@
-import { View, Text, TextInput, TouchableOpacity, StatusBar, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StatusBar,
+  ScrollView,
+  BackHandler,
+} from 'react-native';
+import React, { useState, useEffect } from 'react';
 import normalize from 'react-native-normalize';
 import { COLOR } from '../../utils/Color';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Toast from 'react-native-toast-message';
+import { CONFIG } from '../../config';
+import axios from 'axios';
 
 interface RegisterProps {
   navigation: any;
@@ -13,6 +23,20 @@ export default function Register({ navigation }: RegisterProps) {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isVisible2, setIsVisible2] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        // Navigate to Login instead of going back
+        navigation.navigate('Login');
+        return true; // Prevent default behavior
+      }
+    );
+
+    return () => backHandler.remove();
+  }, [navigation]);
+  
   const [payload, setPayload] = useState({
     name: '',
     email: '',
@@ -76,31 +100,64 @@ export default function Register({ navigation }: RegisterProps) {
   };
 
   const onSubmit = async () => {
+    const isValid = formValidation();
+    if (!isValid) return;
+
+    setIsLoading(true);
+
     try {
-      const isValid = formValidation();
-      if (!isValid) return;
+      // Clean payload - remove confirmPassword as it's not needed by the API
+      const { confirmPassword, ...registerPayload } = payload;
       
-      setIsLoading(true);
+      const response = await axios.post(
+        `${CONFIG.API_URL}/auth/register`,
+        registerPayload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log('Registration successful:', response.data);
+      Toast.show({
+        type: 'success',
+        text1: 'Registrasi Berhasil',
+        text2: 'Akun Anda telah dibuat',
+        position: 'top',
+      });
+      navigation.navigate('Login');
+      setIsLoading(false);
+    } catch (error: any) {
+      console.log('Registration error:', error);
       
-      // Simulate API call
-      setTimeout(() => {
-        console.log(payload);
-        Toast.show({
-          type: 'success',
-          text1: 'Registrasi Berhasil',
-          text2: 'Akun Anda telah dibuat',
-          position: 'top',
-        });
-        // Navigate to Login after successful registration
-        navigation.navigate('Login');
-        setIsLoading(false);
-      }, 2000);
-    } catch (error) {
-      console.log(error);
+      // Extract error message from API response
+      let errorMessage = 'Registrasi gagal, coba lagi';
+      
+      if (error.response) {
+        // Server responded with error status
+        const status = error.response.status;
+        const errorData = error.response.data;
+        
+        if (errorData && errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData && errorData.error) {
+          errorMessage = errorData.error;
+        } else if (status === 400) {
+          errorMessage = 'Data yang dimasukkan tidak valid';
+        } else if (status === 409) {
+          errorMessage = 'Email atau nomor telepon sudah terdaftar';
+        } else if (status === 500) {
+          errorMessage = 'Server error, coba lagi nanti';
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        errorMessage = 'Tidak dapat terhubung ke server';
+      }
+      
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: 'Registrasi gagal, coba lagi',
+        text2: errorMessage,
         position: 'top',
       });
       setIsLoading(false);
@@ -110,7 +167,7 @@ export default function Register({ navigation }: RegisterProps) {
   return (
     <View style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
       <StatusBar barStyle="dark-content" backgroundColor={COLOR.SECONDARY} />
-      
+
       {/* Header with gradient */}
       <View
         style={{
@@ -166,7 +223,10 @@ export default function Register({ navigation }: RegisterProps) {
 
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: normalize(30), marginTop: normalize(40) }}
+        contentContainerStyle={{
+          paddingBottom: normalize(30),
+          marginTop: normalize(40),
+        }}
         showsVerticalScrollIndicator={false}
       >
         {/* Form Container */}
@@ -358,7 +418,9 @@ export default function Register({ navigation }: RegisterProps) {
                 placeholderTextColor="#999"
                 secureTextEntry={!isVisible}
                 value={payload?.password}
-                onChangeText={value => setPayload({ ...payload, password: value })}
+                onChangeText={value =>
+                  setPayload({ ...payload, password: value })
+                }
                 style={{
                   flex: 1,
                   fontSize: normalize(16),
@@ -504,15 +566,15 @@ export default function Register({ navigation }: RegisterProps) {
             Sudah punya akun?{' '}
           </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text
-                  style={{
-                    fontSize: normalize(14),
-                    fontWeight: '600',
-                    color: COLOR.PRIMARY,
-                  }}
-                >
-                  Masuk Sekarang
-                </Text>
+            <Text
+              style={{
+                fontSize: normalize(14),
+                fontWeight: '600',
+                color: COLOR.PRIMARY,
+              }}
+            >
+              Masuk Sekarang
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

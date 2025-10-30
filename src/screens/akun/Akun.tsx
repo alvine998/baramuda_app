@@ -3,19 +3,24 @@ import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import { clearAuthData } from '../../services/storage';
+import { useAuth } from '../../hooks/useAuth';
 
 interface AkunProps {
   navigation: any;
 }
 
 export default function Akun({ navigation }: AkunProps) {
-  const userData = {
-    name: 'Admin User',
-    email: 'admin@gmail.com',
-    phone: '+62 812 3456 7890',
-    joinDate: 'Oktober 2024',
-    avatar: 'https://via.placeholder.com/100x100/4A90E2/FFFFFF?text=AU',
-  };
+  const { isAuthenticated, user } = useAuth();
+
+  const displayName = isAuthenticated && user?.name ? user.name : 'Tamu';
+  const displayEmail = isAuthenticated && user?.email ? user.email : '-';
+  const displayPhone = isAuthenticated && (user as any)?.phone ? (user as any).phone : '-';
+  const joinDateISO = isAuthenticated && (user as any)?.createdAt ? (user as any).createdAt : undefined;
+  const displayJoinDate = joinDateISO
+    ? new Date(joinDateISO).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+    : '-';
+  const avatarUri = undefined as string | undefined; // Placeholder if you later add avatar in profile
 
   return (
     <ScrollView
@@ -55,6 +60,42 @@ export default function Akun({ navigation }: AkunProps) {
           paddingVertical: normalize(30),
         }}
       >
+        {!isAuthenticated && (
+          <View
+            style={{
+              backgroundColor: COLOR.SECONDARY,
+              borderRadius: normalize(12),
+              padding: normalize(14),
+              marginBottom: normalize(16),
+            }}
+          >
+            <Text
+              style={{
+                fontSize: normalize(13),
+                color: COLOR.PRIMARY,
+                marginBottom: normalize(8),
+              }}
+            >
+              Anda belum masuk. Masuk untuk mengakses semua fitur.
+            </Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Login')}
+              style={{
+                backgroundColor: COLOR.PRIMARY,
+                alignSelf: 'flex-start',
+                paddingVertical: normalize(10),
+                paddingHorizontal: normalize(16),
+                borderRadius: normalize(20),
+              }}
+            >
+              <Text
+                style={{ color: COLOR.WHITE, fontWeight: '600', fontSize: normalize(12) }}
+              >
+                Masuk
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
         {/* Profile Card */}
         <View
           style={{
@@ -79,15 +120,33 @@ export default function Akun({ navigation }: AkunProps) {
               marginBottom: normalize(20),
             }}
           >
-            <Image
-              source={{ uri: userData.avatar }}
-              style={{
-                width: normalize(80),
-                height: normalize(80),
-                borderRadius: normalize(40),
-                marginRight: normalize(15),
-              }}
-            />
+            {avatarUri ? (
+              <Image
+                source={{ uri: avatarUri }}
+                style={{
+                  width: normalize(80),
+                  height: normalize(80),
+                  borderRadius: normalize(40),
+                  marginRight: normalize(15),
+                }}
+              />
+            ) : (
+              <View
+                style={{
+                  width: normalize(80),
+                  height: normalize(80),
+                  borderRadius: normalize(40),
+                  marginRight: normalize(15),
+                  backgroundColor: COLOR.PRIMARY,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Text style={{ color: COLOR.WHITE, fontSize: normalize(22), fontWeight: '700' }}>
+                  {displayName ? displayName.charAt(0).toUpperCase() : 'U'}
+                </Text>
+              </View>
+            )}
             <View style={{ flex: 1 }}>
               <Text
                 style={{
@@ -97,7 +156,7 @@ export default function Akun({ navigation }: AkunProps) {
                   marginBottom: normalize(4),
                 }}
               >
-                {userData.name}
+                {displayName}
               </Text>
               <Text
                 style={{
@@ -106,7 +165,7 @@ export default function Akun({ navigation }: AkunProps) {
                   marginBottom: normalize(2),
                 }}
               >
-                {userData.email}
+                {displayEmail}
               </Text>
               <Text
                 style={{
@@ -114,7 +173,7 @@ export default function Akun({ navigation }: AkunProps) {
                   color: COLOR.GRAY,
                 }}
               >
-                Bergabung {userData.joinDate}
+                {displayPhone !== '-' ? displayPhone + ' • ' : ''}Bergabung {displayJoinDate}
               </Text>
             </View>
           </View>
@@ -127,6 +186,7 @@ export default function Akun({ navigation }: AkunProps) {
               borderRadius: normalize(25),
               alignItems: 'center',
             }}
+            onPress={() => navigation.navigate('Profile')}
           >
             <Text
               style={{
@@ -342,7 +402,10 @@ export default function Akun({ navigation }: AkunProps) {
             alignItems: 'center',
             marginTop: normalize(20),
           }}
-          onPress={() => {
+          onPress={async () => {
+            try {
+              await clearAuthData();
+            } catch {}
             navigation.reset({
               index: 0,
               routes: [{ name: 'Prelogin' }],
