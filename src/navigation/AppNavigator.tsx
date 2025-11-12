@@ -28,6 +28,7 @@ import TopupEmoney from '../screens/ppob/TopupEmoney';
 import PajakDaerah from '../screens/ppob/PajakDaerah';
 import NearMember from '../screens/near_member/NearMember';
 import InteractionMenu from '../screens/interaction/InteractionMenu';
+import SOS from '../screens/sos/SOS';
 
 // Import Bottom Tab Navigator
 import BottomTabNavigator from './BottomTabNavigator';
@@ -60,6 +61,7 @@ export type RootStackParamList = {
   PajakDaerah: undefined;
   NearMember: undefined;
   InteractionMenu: undefined;
+  SOS: undefined;
 };
 
 // Create navigators
@@ -100,6 +102,7 @@ const AppNavigator = () => {
         <Stack.Screen name="PajakDaerah" component={PajakDaerah} />
         <Stack.Screen name="NearMember" component={NearMember} />
         <Stack.Screen name="InteractionMenu" component={InteractionMenu} />
+        <Stack.Screen name="SOS" component={SOS} />
       </Stack.Navigator>
     </NavigationContainer>
   );

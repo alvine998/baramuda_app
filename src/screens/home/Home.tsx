@@ -890,13 +890,7 @@ export default function Home({ navigation }: HomeProps) {
                 onPress={() =>
                   handleProtectedFeature(
                     'SOS',
-                    () =>
-                      Toast.show({
-                        type: 'info',
-                        text1: 'Fitur SOS',
-                        text2: 'Hubungi pusat bantuan Baramuda.',
-                        position: 'top',
-                      }),
+                  () => navigation.navigate('SOS'),
                   )
                 }
               >
