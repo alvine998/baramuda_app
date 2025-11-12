@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { isLoggedIn, getUserData, getAuthToken, AuthData } from '../services/storage';
+import { isKycVerified } from '../utils/kyc';
 
 /**
  * Custom hook to check authentication state
@@ -10,6 +11,7 @@ export const useAuth = () => {
   const [user, setUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [hasCompletedKyc, setHasCompletedKyc] = useState<boolean>(false);
 
   useEffect(() => {
     checkAuthStatus();
@@ -26,15 +28,18 @@ export const useAuth = () => {
         const authToken = await getAuthToken();
         setUser(userData);
         setToken(authToken);
+        setHasCompletedKyc(isKycVerified(userData));
       } else {
         setUser(null);
         setToken(null);
+        setHasCompletedKyc(false);
       }
     } catch (error) {
       console.error('Error checking auth status:', error);
       setIsAuthenticated(false);
       setUser(null);
       setToken(null);
+      setHasCompletedKyc(false);
     } finally {
       setIsLoading(false);
     }
@@ -45,6 +50,7 @@ export const useAuth = () => {
     user,
     token,
     isLoading,
+    hasCompletedKyc,
     refreshAuth: checkAuthStatus,
   };
 };

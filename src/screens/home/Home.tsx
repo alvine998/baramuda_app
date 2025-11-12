@@ -1,11 +1,22 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, Animated, Dimensions, RefreshControl, TextInput, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Animated,
+  Dimensions,
+  RefreshControl,
+  TextInput,
+  Platform,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLOR } from '../../utils/Color';
 import normalize from 'react-native-normalize';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Toast from 'react-native-toast-message';
-import { requireAuth } from '../../utils/authGuard';
+import { requireAuth, requireKyc } from '../../utils/authGuard';
 import { useAuth } from '../../hooks/useAuth';
 
 interface HomeProps {
@@ -20,8 +31,13 @@ export default function Home({ navigation }: HomeProps) {
   const slideWidth = width - normalize(40); // Account for container margins
   const slideAnim = React.useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
-  const { isAuthenticated, user, isLoading: authLoading } = useAuth();
-  
+  const {
+    isAuthenticated,
+    user,
+    isLoading: authLoading,
+    hasCompletedKyc,
+  } = useAuth();
+
   // Additional padding for Samsung devices and devices with gesture navigation
   const getBottomPadding = () => {
     if (Platform.OS === 'android') {
@@ -32,18 +48,47 @@ export default function Home({ navigation }: HomeProps) {
   };
 
   // Handle protected feature (requires login)
-  const handleProtectedFeature = async (featureName: string) => {
-    const proceed = await requireAuth(
+  const handleProtectedFeature = async (
+    featureName: string,
+    onGranted?: () => void,
+    requiresKyc: boolean = false,
+  ) => {
+    if (requiresKyc) {
+      await requireKyc(
+        navigation,
+        () => {
+          if (onGranted) {
+            onGranted();
+          } else {
+            Toast.show({
+              type: 'success',
+              text1: 'Akses Diberikan',
+              text2: `Mengakses ${featureName}...`,
+              position: 'top',
+            });
+          }
+        },
+        `Fitur ${featureName} memerlukan login terlebih dahulu`,
+        `Fitur ${featureName} hanya tersedia untuk anggota yang sudah menyelesaikan verifikasi KYC (KTP).`,
+      );
+      return;
+    }
+
+    await requireAuth(
       navigation,
       () => {
-        // This callback executes if user is already authenticated or after login
-        if (featureName === 'Event') {
-          navigation.navigate('Event');
-          return;
+        if (onGranted) {
+          onGranted();
+        } else {
+          Toast.show({
+            type: 'success',
+            text1: 'Akses Diberikan',
+            text2: `Mengakses ${featureName}...`,
+            position: 'top',
+          });
         }
-        Toast.show({ type: 'success', text1: 'Akses Diberikan', text2: `Mengakses ${featureName}...`, position: 'top' });
       },
-      `Fitur ${featureName} memerlukan login terlebih dahulu`
+      `Fitur ${featureName} memerlukan login terlebih dahulu`,
     );
   };
 
@@ -74,7 +119,7 @@ export default function Home({ navigation }: HomeProps) {
   // Auto-advance carousel
   React.useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % carouselData.length);
+      setCurrentSlide(prev => (prev + 1) % carouselData.length);
     }, 3000); // Change slide every 3 seconds
 
     return () => clearInterval(interval);
@@ -123,6 +168,12 @@ export default function Home({ navigation }: HomeProps) {
     }
   };
 
+  React.useEffect(() => {
+    console.log('hasCompletedKyc', hasCompletedKyc);
+    console.log('isAuthenticated', isAuthenticated);
+    console.log('user', user);
+  }, [hasCompletedKyc, isAuthenticated, user]);
+
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
 
@@ -149,7 +200,53 @@ export default function Home({ navigation }: HomeProps) {
   const currentUser = {
     name: displayName,
     email: isAuthenticated && user ? user.email : '',
-    joinDate: isAuthenticated && user ? new Date(user.createdAt).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) : '',
+    joinDate:
+      isAuthenticated && user
+        ? new Date(user.createdAt).toLocaleDateString('id-ID', {
+            month: 'long',
+            year: 'numeric',
+          })
+        : '',
+  };
+
+  const renderRestrictionBadge = (needsAuth: boolean, needsKyc: boolean) => {
+    if (!needsAuth && !needsKyc) {
+      return null;
+    }
+
+    const iconName = needsAuth ? 'lock' : 'id-card';
+    const backgroundColor = needsAuth ? COLOR.PRIMARY : '#1A73E8';
+    const label = needsAuth ? 'Login' : 'KYC';
+
+    return (
+      <View
+        style={{
+          position: 'absolute',
+          top: -2,
+          right: -2,
+          backgroundColor,
+          borderRadius: normalize(10),
+          minWidth: normalize(22),
+          height: normalize(22),
+          paddingHorizontal: normalize(6),
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: normalize(4),
+        }}
+      >
+        <Icon name={iconName} size={normalize(10)} color={COLOR.WHITE} solid />
+        <Text
+          style={{
+            color: COLOR.WHITE,
+            fontSize: normalize(9),
+            fontWeight: '700',
+          }}
+        >
+          {label}
+        </Text>
+      </View>
+    );
   };
 
   return (
@@ -288,183 +385,50 @@ export default function Home({ navigation }: HomeProps) {
         }
       >
         {/* Welcome Section */}
-      <View
-        style={{
-          paddingHorizontal: normalize(20),
-          paddingVertical: normalize(20),
-          backgroundColor: COLOR.WHITE,
-        }}
-      >
         <View
           style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: normalize(15),
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                fontSize: normalize(18),
-                fontWeight: 'bold',
-                color: COLOR.PRIMARY,
-                marginBottom: normalize(4),
-              }}
-            >
-              Halo, {currentUser.name}! 👋
-            </Text>
-            <Text
-              style={{
-                fontSize: normalize(14),
-                color: COLOR.GRAY,
-              }}
-            >
-              Apa yang ingin Anda lakukan hari ini?
-            </Text>
-          </View>
-          {!isAuthenticated && (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Login')}
-              style={{
-                backgroundColor: COLOR.PRIMARY,
-                paddingHorizontal: normalize(20),
-                paddingVertical: normalize(12),
-                borderRadius: normalize(25),
-                shadowColor: COLOR.PRIMARY,
-                shadowOffset: {
-                  width: 0,
-                  height: 4,
-                },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                elevation: 8,
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: normalize(14),
-                  fontWeight: 'bold',
-                  color: COLOR.WHITE,
-                }}
-              >
-                Login
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
-      {/* Carousel Banner */}
-      
-      {/* Services Section */}
-      <View
-        style={{
-          paddingHorizontal: normalize(20),
-          marginBottom: normalize(25),
-        }}
-      >
-        <Text
-          style={{
-            fontSize: normalize(20),
-            fontWeight: 'bold',
-            color: COLOR.PRIMARY,
-            marginBottom: normalize(20),
-          }}
-        >
-          Layanan Kami
-        </Text>
-        
-        <View
-          style={{
+            paddingHorizontal: normalize(20),
+            paddingVertical: normalize(20),
             backgroundColor: COLOR.WHITE,
-            borderRadius: normalize(20),
-            padding: normalize(20),
-            // shadowColor: '#000',
-            // shadowOffset: {
-            //   width: 0,
-            //   height: 4,
-            // },
-            // shadowOpacity: 0.1,
-            // shadowRadius: 12,
-            // elevation: 1,
-            borderWidth: 1,
-            borderColor: COLOR.SECONDARY,
           }}
         >
           <View
             style={{
               flexDirection: 'row',
-              flexWrap: 'wrap',
               justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: normalize(15),
             }}
           >
-            {/* Mart */}
-            <TouchableOpacity
-              style={{
-                width: '22%',
-                alignItems: 'center',
-                marginBottom: normalize(20),
-              }}
-              onPress={() => navigation.navigate('Mart')}
-            >
-              <View
-                style={{
-                  width: normalize(60),
-                  height: normalize(60),
-                  backgroundColor: '#FF6B35',
-                  borderRadius: normalize(30),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginBottom: normalize(8),
-                  shadowColor: '#FF6B35',
-                  shadowOffset: {
-                    width: 0,
-                    height: 4,
-                  },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                  elevation: 8,
-                }}
-              >
-                <Icon
-                  name="shopping-cart"
-                  size={normalize(24)}
-                  color={COLOR.WHITE}
-                  solid
-                />
-              </View>
+            <View style={{ flex: 1 }}>
               <Text
                 style={{
-                  fontSize: normalize(12),
-                  fontWeight: '600',
+                  fontSize: normalize(18),
+                  fontWeight: 'bold',
                   color: COLOR.PRIMARY,
-                  textAlign: 'center',
+                  marginBottom: normalize(4),
                 }}
               >
-                Mart
+                Halo, {currentUser.name}! 👋
               </Text>
-            </TouchableOpacity>
-
-            {/* Event - Protected Feature (Requires Login) */}
-            <TouchableOpacity
-              style={{
-                width: '22%',
-                alignItems: 'center',
-                marginBottom: normalize(20),
-              }}
-              onPress={() => handleProtectedFeature('Event')}
-            >
-              <View
+              <Text
                 style={{
-                  width: normalize(60),
-                  height: normalize(60),
-                  backgroundColor: '#4ECDC4',
-                  borderRadius: normalize(30),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginBottom: normalize(8),
-                  shadowColor: '#4ECDC4',
+                  fontSize: normalize(14),
+                  color: COLOR.GRAY,
+                }}
+              >
+                Apa yang ingin Anda lakukan hari ini?
+              </Text>
+            </View>
+            {!isAuthenticated ? (
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Login')}
+                style={{
+                  backgroundColor: COLOR.PRIMARY,
+                  paddingHorizontal: normalize(20),
+                  paddingVertical: normalize(12),
+                  borderRadius: normalize(25),
+                  shadowColor: COLOR.PRIMARY,
                   shadowOffset: {
                     width: 0,
                     height: 4,
@@ -472,344 +436,59 @@ export default function Home({ navigation }: HomeProps) {
                   shadowOpacity: 0.3,
                   shadowRadius: 8,
                   elevation: 8,
-                  position: 'relative',
                 }}
               >
-                <Icon
-                  name="calendar-alt"
-                  size={normalize(24)}
-                  color={COLOR.WHITE}
-                  solid
-                />
-                {!isAuthenticated && (
-                  <View
+                <Text
+                  style={{
+                    fontSize: normalize(14),
+                    fontWeight: 'bold',
+                    color: COLOR.WHITE,
+                  }}
+                >
+                  Login
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              !hasCompletedKyc && (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Profile')}
+                  style={{
+                    backgroundColor: '#1A73E8',
+                    paddingHorizontal: normalize(20),
+                    paddingVertical: normalize(12),
+                    borderRadius: normalize(25),
+                    shadowColor: '#1A73E8',
+                    shadowOffset: {
+                      width: 0,
+                      height: 4,
+                    },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 8,
+                  }}
+                >
+                  <Text
                     style={{
-                      position: 'absolute',
-                      top: -2,
-                      right: -2,
-                      backgroundColor: COLOR.PRIMARY,
-                      borderRadius: normalize(10),
-                      width: normalize(20),
-                      height: normalize(20),
-                      justifyContent: 'center',
-                      alignItems: 'center',
+                      fontSize: normalize(14),
+                      fontWeight: 'bold',
+                      color: COLOR.WHITE,
                     }}
                   >
-                    <Icon
-                      name="lock"
-                      size={normalize(10)}
-                      color={COLOR.WHITE}
-                      solid
-                    />
-                  </View>
-                )}
-              </View>
-              <Text
-                style={{
-                  fontSize: normalize(12),
-                  fontWeight: '600',
-                  color: COLOR.PRIMARY,
-                  textAlign: 'center',
-                }}
-              >
-                Event
-              </Text>
-            </TouchableOpacity>
-
-            {/* Near Member */}
-            <TouchableOpacity
-              style={{
-                width: '22%',
-                alignItems: 'center',
-                marginBottom: normalize(20),
-              }}
-            >
-              <View
-                style={{
-                  width: normalize(60),
-                  height: normalize(60),
-                  backgroundColor: '#45B7D1',
-                  borderRadius: normalize(30),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginBottom: normalize(8),
-                  shadowColor: '#45B7D1',
-                  shadowOffset: {
-                    width: 0,
-                    height: 4,
-                  },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                  elevation: 8,
-                }}
-              >
-                <Icon
-                  name="users"
-                  size={normalize(24)}
-                  color={COLOR.WHITE}
-                  solid
-                />
-              </View>
-              <Text
-                style={{
-                  fontSize: normalize(12),
-                  fontWeight: '600',
-                  color: COLOR.PRIMARY,
-                  textAlign: 'center',
-                }}
-              >
-                Near Member
-              </Text>
-            </TouchableOpacity>
-
-            {/* PPOB */}
-            <TouchableOpacity
-              style={{
-                width: '22%',
-                alignItems: 'center',
-                marginBottom: normalize(20),
-              }}
-            >
-              <View
-                style={{
-                  width: normalize(60),
-                  height: normalize(60),
-                  backgroundColor: '#96CEB4',
-                  borderRadius: normalize(30),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginBottom: normalize(8),
-                  shadowColor: '#96CEB4',
-                  shadowOffset: {
-                    width: 0,
-                    height: 4,
-                  },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                  elevation: 8,
-                }}
-              >
-                <Icon
-                  name="credit-card"
-                  size={normalize(24)}
-                  color={COLOR.WHITE}
-                  solid
-                />
-              </View>
-              <Text
-                style={{
-                  fontSize: normalize(12),
-                  fontWeight: '600',
-                  color: COLOR.PRIMARY,
-                  textAlign: 'center',
-                }}
-              >
-                PPOB
-              </Text>
-            </TouchableOpacity>
-
-            {/* Media */}
-            <TouchableOpacity
-              style={{
-                width: '22%',
-                alignItems: 'center',
-                marginBottom: normalize(20),
-              }}
-              onPress={() => navigation.navigate('Media')}
-            >
-              <View
-                style={{
-                  width: normalize(60),
-                  height: normalize(60),
-                  backgroundColor: '#FECA57',
-                  borderRadius: normalize(30),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginBottom: normalize(8),
-                  shadowColor: '#FECA57',
-                  shadowOffset: {
-                    width: 0,
-                    height: 4,
-                  },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                  elevation: 8,
-                }}
-              >
-                <Icon
-                  name="play-circle"
-                  size={normalize(24)}
-                  color={COLOR.WHITE}
-                  solid
-                />
-              </View>
-              <Text
-                style={{
-                  fontSize: normalize(12),
-                  fontWeight: '600',
-                  color: COLOR.PRIMARY,
-                  textAlign: 'center',
-                }}
-              >
-                Media
-              </Text>
-            </TouchableOpacity>
-
-            {/* About Us */}
-            <TouchableOpacity
-              style={{
-                width: '22%',
-                alignItems: 'center',
-                marginBottom: normalize(20),
-              }}
-              onPress={() => navigation.navigate('AboutUs')}
-            >
-              <View
-                style={{
-                  width: normalize(60),
-                  height: normalize(60),
-                  backgroundColor: '#A8E6CF',
-                  borderRadius: normalize(30),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginBottom: normalize(8),
-                  shadowColor: '#A8E6CF',
-                  shadowOffset: {
-                    width: 0,
-                    height: 4,
-                  },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                  elevation: 8,
-                }}
-              >
-                <Icon
-                  name="info-circle"
-                  size={normalize(24)}
-                  color={COLOR.WHITE}
-                  solid
-                />
-              </View>
-              <Text
-                style={{
-                  fontSize: normalize(12),
-                  fontWeight: '600',
-                  color: COLOR.PRIMARY,
-                  textAlign: 'center',
-                }}
-              >
-                About Us
-              </Text>
-            </TouchableOpacity>
-
-            {/* Interaction */}
-            <TouchableOpacity
-              style={{
-                width: '22%',
-                alignItems: 'center',
-                marginBottom: normalize(20),
-              }}
-            >
-              <View
-                style={{
-                  width: normalize(60),
-                  height: normalize(60),
-                  backgroundColor: '#DDA0DD',
-                  borderRadius: normalize(30),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginBottom: normalize(8),
-                  shadowColor: '#DDA0DD',
-                  shadowOffset: {
-                    width: 0,
-                    height: 4,
-                  },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                  elevation: 8,
-                }}
-              >
-                <Icon
-                  name="comments"
-                  size={normalize(24)}
-                  color={COLOR.WHITE}
-                  solid
-                />
-              </View>
-              <Text
-                style={{
-                  fontSize: normalize(12),
-                  fontWeight: '600',
-                  color: COLOR.PRIMARY,
-                  textAlign: 'center',
-                }}
-              >
-                Interaction
-              </Text>
-            </TouchableOpacity>
-
-            {/* SOS */}
-            <TouchableOpacity
-              style={{
-                width: '22%',
-                alignItems: 'center',
-                marginBottom: normalize(20),
-              }}
-            >
-              <View
-                style={{
-                  width: normalize(60),
-                  height: normalize(60),
-                  backgroundColor: '#FF6B6B',
-                  borderRadius: normalize(30),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginBottom: normalize(8),
-                  shadowColor: '#FF6B6B',
-                  shadowOffset: {
-                    width: 0,
-                    height: 4,
-                  },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                  elevation: 8,
-                }}
-              >
-                <Icon
-                  name="exclamation-triangle"
-                  size={normalize(24)}
-                  color={COLOR.WHITE}
-                  solid
-                />
-              </View>
-              <Text
-                style={{
-                  fontSize: normalize(12),
-                  fontWeight: '600',
-                  color: COLOR.PRIMARY,
-                  textAlign: 'center',
-                }}
-              >
-                SOS
-              </Text>
-            </TouchableOpacity>
+                    Lengkapi KYC
+                  </Text>
+                </TouchableOpacity>
+              )
+            )}
           </View>
         </View>
-      </View>
 
-      {/* News Section */}
-      <View
-        style={{
-          paddingHorizontal: normalize(20),
-          marginBottom: normalize(30),
-        }}
-      >
+        {/* Carousel Banner */}
+
+        {/* Services Section */}
         <View
           style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: normalize(20),
+            paddingHorizontal: normalize(20),
+            marginBottom: normalize(25),
           }}
         >
           <Text
@@ -817,335 +496,806 @@ export default function Home({ navigation }: HomeProps) {
               fontSize: normalize(20),
               fontWeight: 'bold',
               color: COLOR.PRIMARY,
+              marginBottom: normalize(20),
             }}
           >
-            Berita Terbaru
+            Layanan Kami
           </Text>
-          <TouchableOpacity>
-            <Text
+
+          <View
+            style={{
+              backgroundColor: COLOR.WHITE,
+              borderRadius: normalize(20),
+              padding: normalize(20),
+              // shadowColor: '#000',
+              // shadowOffset: {
+              //   width: 0,
+              //   height: 4,
+              // },
+              // shadowOpacity: 0.1,
+              // shadowRadius: 12,
+              // elevation: 1,
+              borderWidth: 1,
+              borderColor: COLOR.SECONDARY,
+            }}
+          >
+            <View
               style={{
-                fontSize: normalize(14),
-                fontWeight: '600',
-                color: COLOR.PRIMARY,
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                justifyContent: 'space-between',
               }}
             >
-              Lihat Semua
-            </Text>
-          </TouchableOpacity>
+              {/* Mart */}
+              <TouchableOpacity
+                style={{
+                  width: '22%',
+                  alignItems: 'center',
+                  marginBottom: normalize(20),
+                }}
+                onPress={() => navigation.navigate('Mart')}
+              >
+                <View
+                  style={{
+                    width: normalize(60),
+                    height: normalize(60),
+                    backgroundColor: '#FF6B35',
+                    borderRadius: normalize(30),
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: normalize(8),
+                    shadowColor: '#FF6B35',
+                    shadowOffset: {
+                      width: 0,
+                      height: 4,
+                    },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 8,
+                  }}
+                >
+                  <Icon
+                    name="shopping-cart"
+                    size={normalize(24)}
+                    color={COLOR.WHITE}
+                    solid
+                  />
+                </View>
+                <Text
+                  style={{
+                    fontSize: normalize(12),
+                    fontWeight: '600',
+                    color: COLOR.PRIMARY,
+                    textAlign: 'center',
+                  }}
+                >
+                  Mart
+                </Text>
+              </TouchableOpacity>
+
+              {/* Event - Protected Feature (Requires Login) */}
+              <TouchableOpacity
+                style={{
+                  width: '22%',
+                  alignItems: 'center',
+                  marginBottom: normalize(20),
+                }}
+                onPress={() =>
+                  handleProtectedFeature(
+                    'Event',
+                    () => navigation.navigate('Event'),
+                  )
+                }
+              >
+                <View
+                  style={{
+                    width: normalize(60),
+                    height: normalize(60),
+                    backgroundColor: '#4ECDC4',
+                    borderRadius: normalize(30),
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: normalize(8),
+                    shadowColor: '#4ECDC4',
+                    shadowOffset: {
+                      width: 0,
+                      height: 4,
+                    },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 8,
+                    position: 'relative',
+                  }}
+                >
+                  <Icon
+                    name="calendar-alt"
+                    size={normalize(24)}
+                    color={COLOR.WHITE}
+                    solid
+                  />
+                  {renderRestrictionBadge(!isAuthenticated, false)}
+                </View>
+                <Text
+                  style={{
+                    fontSize: normalize(12),
+                    fontWeight: '600',
+                    color: COLOR.PRIMARY,
+                    textAlign: 'center',
+                  }}
+                >
+                  Event
+                </Text>
+              </TouchableOpacity>
+
+              {/* Near Member */}
+              <TouchableOpacity
+                style={{
+                  width: '22%',
+                  alignItems: 'center',
+                  marginBottom: normalize(20),
+                }}
+                onPress={() =>
+                  handleProtectedFeature(
+                    'Near Member',
+                    () => navigation.navigate('NearMember'),
+                  )
+                }
+              >
+                <View
+                  style={{
+                    width: normalize(60),
+                    height: normalize(60),
+                    backgroundColor: '#45B7D1',
+                    borderRadius: normalize(30),
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: normalize(8),
+                    shadowColor: '#45B7D1',
+                    shadowOffset: {
+                      width: 0,
+                      height: 4,
+                    },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 8,
+                    position: 'relative',
+                  }}
+                >
+                  <Icon
+                    name="users"
+                    size={normalize(24)}
+                    color={COLOR.WHITE}
+                    solid
+                  />
+                  {renderRestrictionBadge(!isAuthenticated, false)}
+                </View>
+                <Text
+                  style={{
+                    fontSize: normalize(12),
+                    fontWeight: '600',
+                    color: COLOR.PRIMARY,
+                    textAlign: 'center',
+                  }}
+                >
+                  Near Member
+                </Text>
+              </TouchableOpacity>
+
+              {/* PPOB */}
+              <TouchableOpacity
+                style={{
+                  width: '22%',
+                  alignItems: 'center',
+                  marginBottom: normalize(20),
+                }}
+                onPress={() =>
+                  handleProtectedFeature('PPOB', () =>
+                    navigation.navigate('PPOB'),
+                  )
+                }
+              >
+                <View
+                  style={{
+                    width: normalize(60),
+                    height: normalize(60),
+                    backgroundColor: '#96CEB4',
+                    borderRadius: normalize(30),
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: normalize(8),
+                    shadowColor: '#96CEB4',
+                    shadowOffset: {
+                      width: 0,
+                      height: 4,
+                    },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 8,
+                  }}
+                >
+                  <Icon
+                    name="credit-card"
+                    size={normalize(24)}
+                    color={COLOR.WHITE}
+                    solid
+                  />
+                </View>
+                <Text
+                  style={{
+                    fontSize: normalize(12),
+                    fontWeight: '600',
+                    color: COLOR.PRIMARY,
+                    textAlign: 'center',
+                  }}
+                >
+                  PPOB
+                </Text>
+              </TouchableOpacity>
+
+              {/* Media */}
+              <TouchableOpacity
+                style={{
+                  width: '22%',
+                  alignItems: 'center',
+                  marginBottom: normalize(20),
+                }}
+                onPress={() => navigation.navigate('Media')}
+              >
+                <View
+                  style={{
+                    width: normalize(60),
+                    height: normalize(60),
+                    backgroundColor: '#FECA57',
+                    borderRadius: normalize(30),
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: normalize(8),
+                    shadowColor: '#FECA57',
+                    shadowOffset: {
+                      width: 0,
+                      height: 4,
+                    },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 8,
+                  }}
+                >
+                  <Icon
+                    name="play-circle"
+                    size={normalize(24)}
+                    color={COLOR.WHITE}
+                    solid
+                  />
+                </View>
+                <Text
+                  style={{
+                    fontSize: normalize(12),
+                    fontWeight: '600',
+                    color: COLOR.PRIMARY,
+                    textAlign: 'center',
+                  }}
+                >
+                  Media
+                </Text>
+              </TouchableOpacity>
+
+              {/* About Us */}
+              <TouchableOpacity
+                style={{
+                  width: '22%',
+                  alignItems: 'center',
+                  marginBottom: normalize(20),
+                }}
+                onPress={() => navigation.navigate('AboutUs')}
+              >
+                <View
+                  style={{
+                    width: normalize(60),
+                    height: normalize(60),
+                    backgroundColor: '#A8E6CF',
+                    borderRadius: normalize(30),
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: normalize(8),
+                    shadowColor: '#A8E6CF',
+                    shadowOffset: {
+                      width: 0,
+                      height: 4,
+                    },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 8,
+                  }}
+                >
+                  <Icon
+                    name="info-circle"
+                    size={normalize(24)}
+                    color={COLOR.WHITE}
+                    solid
+                  />
+                </View>
+                <Text
+                  style={{
+                    fontSize: normalize(12),
+                    fontWeight: '600',
+                    color: COLOR.PRIMARY,
+                    textAlign: 'center',
+                  }}
+                >
+                  About Us
+                </Text>
+              </TouchableOpacity>
+
+              {/* Interaction */}
+              <TouchableOpacity
+                style={{
+                  width: '22%',
+                  alignItems: 'center',
+                  marginBottom: normalize(20),
+                }}
+                onPress={() =>
+                  handleProtectedFeature(
+                    'Interaction',
+                    () => navigation.navigate('InteractionMenu'),
+                  )
+                }
+              >
+                <View
+                  style={{
+                    width: normalize(60),
+                    height: normalize(60),
+                    backgroundColor: '#DDA0DD',
+                    borderRadius: normalize(30),
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: normalize(8),
+                    shadowColor: '#DDA0DD',
+                    shadowOffset: {
+                      width: 0,
+                      height: 4,
+                    },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 8,
+                    position: 'relative',
+                  }}
+                >
+                  <Icon
+                    name="comments"
+                    size={normalize(24)}
+                    color={COLOR.WHITE}
+                    solid
+                  />
+                  {renderRestrictionBadge(!isAuthenticated, false)}
+                </View>
+                <Text
+                  style={{
+                    fontSize: normalize(12),
+                    fontWeight: '600',
+                    color: COLOR.PRIMARY,
+                    textAlign: 'center',
+                  }}
+                >
+                  Interaction
+                </Text>
+              </TouchableOpacity>
+
+              {/* SOS */}
+              <TouchableOpacity
+                style={{
+                  width: '22%',
+                  alignItems: 'center',
+                  marginBottom: normalize(20),
+                }}
+                onPress={() =>
+                  handleProtectedFeature(
+                    'SOS',
+                    () =>
+                      Toast.show({
+                        type: 'info',
+                        text1: 'Fitur SOS',
+                        text2: 'Hubungi pusat bantuan Baramuda.',
+                        position: 'top',
+                      }),
+                  )
+                }
+              >
+                <View
+                  style={{
+                    width: normalize(60),
+                    height: normalize(60),
+                    backgroundColor: '#FF6B6B',
+                    borderRadius: normalize(30),
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: normalize(8),
+                    shadowColor: '#FF6B6B',
+                    shadowOffset: {
+                      width: 0,
+                      height: 4,
+                    },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 8,
+                    position: 'relative',
+                  }}
+                >
+                  <Icon
+                    name="exclamation-triangle"
+                    size={normalize(24)}
+                    color={COLOR.WHITE}
+                    solid
+                  />
+                  {renderRestrictionBadge(!isAuthenticated, false)}
+                </View>
+                <Text
+                  style={{
+                    fontSize: normalize(12),
+                    fontWeight: '600',
+                    color: COLOR.PRIMARY,
+                    textAlign: 'center',
+                  }}
+                >
+                  SOS
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
-        {/* News Card 1 */}
-        <TouchableOpacity
+        {/* News Section */}
+        <View
           style={{
-            backgroundColor: COLOR.WHITE,
-            borderRadius: normalize(16),
-            marginBottom: normalize(16),
-            overflow: 'hidden',
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 4,
-            },
-            shadowOpacity: 0.1,
-            shadowRadius: 12,
-            elevation: 8,
+            paddingHorizontal: normalize(20),
+            marginBottom: normalize(30),
           }}
-          onPress={() => navigation.navigate('NewsDetail')}
-          activeOpacity={0.9}
         >
           <View
             style={{
-              height: normalize(140),
-              backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              justifyContent: 'center',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
               alignItems: 'center',
-              position: 'relative',
+              marginBottom: normalize(20),
             }}
           >
-            <View
+            <Text
               style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(102, 126, 234, 0.8)',
-              }}
-            />
-            <Icon
-              name="newspaper"
-              size={normalize(40)}
-              color={COLOR.WHITE}
-              solid
-              style={{ zIndex: 1 }}
-            />
-            <View
-              style={{
-                position: 'absolute',
-                top: normalize(12),
-                right: normalize(12),
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                paddingHorizontal: normalize(8),
-                paddingVertical: normalize(4),
-                borderRadius: normalize(12),
+                fontSize: normalize(20),
+                fontWeight: 'bold',
+                color: COLOR.PRIMARY,
               }}
             >
+              Berita Terbaru
+            </Text>
+            <TouchableOpacity>
               <Text
                 style={{
-                  fontSize: normalize(10),
+                  fontSize: normalize(14),
                   fontWeight: '600',
-                  color: COLOR.WHITE,
+                  color: COLOR.PRIMARY,
                 }}
               >
-                TERBARU
+                Lihat Semua
               </Text>
-            </View>
+            </TouchableOpacity>
           </View>
-          <View
-            style={{
-              padding: normalize(16),
-            }}
-          >
-            <Text
-              style={{
-                fontSize: normalize(16),
-                fontWeight: 'bold',
-                color: COLOR.PRIMARY,
-                marginBottom: normalize(8),
-                lineHeight: normalize(22),
-              }}
-            >
-              Update Fitur Terbaru Baramuda App
-            </Text>
-            <Text
-              style={{
-                fontSize: normalize(13),
-                color: COLOR.GRAY,
-                lineHeight: normalize(18),
-                marginBottom: normalize(12),
-              }}
-            >
-              Kami telah menambahkan fitur-fitur menarik untuk meningkatkan pengalaman pengguna.
-            </Text>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: normalize(11),
-                  color: COLOR.GRAY,
-                }}
-              >
-                2 jam yang lalu
-              </Text>
-              <Icon
-                name="arrow-right"
-                size={normalize(12)}
-                color={COLOR.PRIMARY}
-                solid
-              />
-            </View>
-          </View>
-        </TouchableOpacity>
 
-        {/* News Card 2 */}
-        <TouchableOpacity
-          style={{
-            backgroundColor: COLOR.WHITE,
-            borderRadius: normalize(16),
-            marginBottom: normalize(16),
-            overflow: 'hidden',
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 4,
-            },
-            shadowOpacity: 0.1,
-            shadowRadius: 12,
-            elevation: 8,
-          }}
-          onPress={() => navigation.navigate('NewsDetail')}
-          activeOpacity={0.9}
-        >
-          <View
+          {/* News Card 1 */}
+          <TouchableOpacity
             style={{
-              height: normalize(140),
-              backgroundColor: '#4ECDC4',
-              justifyContent: 'center',
-              alignItems: 'center',
-              position: 'relative',
+              backgroundColor: COLOR.WHITE,
+              borderRadius: normalize(16),
+              marginBottom: normalize(16),
+              overflow: 'hidden',
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 4,
+              },
+              shadowOpacity: 0.1,
+              shadowRadius: 12,
+              elevation: 8,
             }}
+            onPress={() => navigation.navigate('NewsDetail')}
+            activeOpacity={0.9}
           >
             <View
               style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(78, 205, 196, 0.8)',
-              }}
-            />
-            <Icon
-              name="shield-alt"
-              size={normalize(40)}
-              color={COLOR.WHITE}
-              solid
-              style={{ zIndex: 1 }}
-            />
-          </View>
-          <View
-            style={{
-              padding: normalize(16),
-            }}
-          >
-            <Text
-              style={{
-                fontSize: normalize(16),
-                fontWeight: 'bold',
-                color: COLOR.PRIMARY,
-                marginBottom: normalize(8),
-                lineHeight: normalize(22),
-              }}
-            >
-              Keamanan Data Terjamin
-            </Text>
-            <Text
-              style={{
-                fontSize: normalize(13),
-                color: COLOR.GRAY,
-                lineHeight: normalize(18),
-                marginBottom: normalize(12),
-              }}
-            >
-              Sistem keamanan terbaru telah diimplementasikan untuk melindungi data pengguna.
-            </Text>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
+                height: normalize(140),
+                backgroundColor:
+                  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                justifyContent: 'center',
                 alignItems: 'center',
+                position: 'relative',
+              }}
+            >
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                }}
+              />
+              <Icon
+                name="newspaper"
+                size={normalize(40)}
+                color={COLOR.WHITE}
+                solid
+                style={{ zIndex: 1 }}
+              />
+              <View
+                style={{
+                  position: 'absolute',
+                  top: normalize(12),
+                  right: normalize(12),
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  paddingHorizontal: normalize(8),
+                  paddingVertical: normalize(4),
+                  borderRadius: normalize(12),
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: normalize(10),
+                    fontWeight: '600',
+                    color: COLOR.WHITE,
+                  }}
+                >
+                  TERBARU
+                </Text>
+              </View>
+            </View>
+            <View
+              style={{
+                padding: normalize(16),
               }}
             >
               <Text
                 style={{
-                  fontSize: normalize(11),
-                  color: COLOR.GRAY,
+                  fontSize: normalize(16),
+                  fontWeight: 'bold',
+                  color: COLOR.PRIMARY,
+                  marginBottom: normalize(8),
+                  lineHeight: normalize(22),
                 }}
               >
-                5 jam yang lalu
+                Update Fitur Terbaru Baramuda App
               </Text>
-              <Icon
-                name="arrow-right"
-                size={normalize(12)}
-                color={COLOR.PRIMARY}
-                solid
-              />
+              <Text
+                style={{
+                  fontSize: normalize(13),
+                  color: COLOR.GRAY,
+                  lineHeight: normalize(18),
+                  marginBottom: normalize(12),
+                }}
+              >
+                Kami telah menambahkan fitur-fitur menarik untuk meningkatkan
+                pengalaman pengguna.
+              </Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: normalize(11),
+                    color: COLOR.GRAY,
+                  }}
+                >
+                  2 jam yang lalu
+                </Text>
+                <Icon
+                  name="arrow-right"
+                  size={normalize(12)}
+                  color={COLOR.PRIMARY}
+                  solid
+                />
+              </View>
             </View>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
 
-        {/* News Card 3 */}
-        <TouchableOpacity
-          style={{
-            backgroundColor: COLOR.WHITE,
-            borderRadius: normalize(16),
-            marginBottom: normalize(16),
-            overflow: 'hidden',
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 4,
-            },
-            shadowOpacity: 0.1,
-            shadowRadius: 12,
-            elevation: 8,
-          }}
-          onPress={() => navigation.navigate('NewsDetail')}
-          activeOpacity={0.9}
-        >
-          <View
+          {/* News Card 2 */}
+          <TouchableOpacity
             style={{
-              height: normalize(140),
-              backgroundColor: '#FECA57',
-              justifyContent: 'center',
-              alignItems: 'center',
-              position: 'relative',
+              backgroundColor: COLOR.WHITE,
+              borderRadius: normalize(16),
+              marginBottom: normalize(16),
+              overflow: 'hidden',
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 4,
+              },
+              shadowOpacity: 0.1,
+              shadowRadius: 12,
+              elevation: 8,
             }}
+            onPress={() => navigation.navigate('NewsDetail')}
+            activeOpacity={0.9}
           >
             <View
               style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(254, 202, 87, 0.8)',
-              }}
-            />
-            <Icon
-              name="rocket"
-              size={normalize(40)}
-              color={COLOR.WHITE}
-              solid
-              style={{ zIndex: 1 }}
-            />
-          </View>
-          <View
-            style={{
-              padding: normalize(16),
-            }}
-          >
-            <Text
-              style={{
-                fontSize: normalize(16),
-                fontWeight: 'bold',
-                color: COLOR.PRIMARY,
-                marginBottom: normalize(8),
-                lineHeight: normalize(22),
-              }}
-            >
-              Peluncuran Fitur Baru
-            </Text>
-            <Text
-              style={{
-                fontSize: normalize(13),
-                color: COLOR.GRAY,
-                lineHeight: normalize(18),
-                marginBottom: normalize(12),
-              }}
-            >
-              Fitur inovatif telah diluncurkan untuk memudahkan aktivitas pengguna sehari-hari.
-            </Text>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
+                height: normalize(140),
+                backgroundColor: '#4ECDC4',
+                justifyContent: 'center',
                 alignItems: 'center',
+                position: 'relative',
+              }}
+            >
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: 'rgba(78, 205, 196, 0.8)',
+                }}
+              />
+              <Icon
+                name="shield-alt"
+                size={normalize(40)}
+                color={COLOR.WHITE}
+                solid
+                style={{ zIndex: 1 }}
+              />
+            </View>
+            <View
+              style={{
+                padding: normalize(16),
               }}
             >
               <Text
                 style={{
-                  fontSize: normalize(11),
-                  color: COLOR.GRAY,
+                  fontSize: normalize(16),
+                  fontWeight: 'bold',
+                  color: COLOR.PRIMARY,
+                  marginBottom: normalize(8),
+                  lineHeight: normalize(22),
                 }}
               >
-                1 hari yang lalu
+                Keamanan Data Terjamin
               </Text>
+              <Text
+                style={{
+                  fontSize: normalize(13),
+                  color: COLOR.GRAY,
+                  lineHeight: normalize(18),
+                  marginBottom: normalize(12),
+                }}
+              >
+                Sistem keamanan terbaru telah diimplementasikan untuk melindungi
+                data pengguna.
+              </Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: normalize(11),
+                    color: COLOR.GRAY,
+                  }}
+                >
+                  5 jam yang lalu
+                </Text>
+                <Icon
+                  name="arrow-right"
+                  size={normalize(12)}
+                  color={COLOR.PRIMARY}
+                  solid
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* News Card 3 */}
+          <TouchableOpacity
+            style={{
+              backgroundColor: COLOR.WHITE,
+              borderRadius: normalize(16),
+              marginBottom: normalize(16),
+              overflow: 'hidden',
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 4,
+              },
+              shadowOpacity: 0.1,
+              shadowRadius: 12,
+              elevation: 8,
+            }}
+            onPress={() => navigation.navigate('NewsDetail')}
+            activeOpacity={0.9}
+          >
+            <View
+              style={{
+                height: normalize(140),
+                backgroundColor: '#FECA57',
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'relative',
+              }}
+            >
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: 'rgba(254, 202, 87, 0.8)',
+                }}
+              />
               <Icon
-                name="arrow-right"
-                size={normalize(12)}
-                color={COLOR.PRIMARY}
+                name="rocket"
+                size={normalize(40)}
+                color={COLOR.WHITE}
                 solid
+                style={{ zIndex: 1 }}
               />
             </View>
-          </View>
-        </TouchableOpacity>
-      </View>
+            <View
+              style={{
+                padding: normalize(16),
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: normalize(16),
+                  fontWeight: 'bold',
+                  color: COLOR.PRIMARY,
+                  marginBottom: normalize(8),
+                  lineHeight: normalize(22),
+                }}
+              >
+                Peluncuran Fitur Baru
+              </Text>
+              <Text
+                style={{
+                  fontSize: normalize(13),
+                  color: COLOR.GRAY,
+                  lineHeight: normalize(18),
+                  marginBottom: normalize(12),
+                }}
+              >
+                Fitur inovatif telah diluncurkan untuk memudahkan aktivitas
+                pengguna sehari-hari.
+              </Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: normalize(11),
+                    color: COLOR.GRAY,
+                  }}
+                >
+                  1 hari yang lalu
+                </Text>
+                <Icon
+                  name="arrow-right"
+                  size={normalize(12)}
+                  color={COLOR.PRIMARY}
+                  solid
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );

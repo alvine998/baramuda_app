@@ -15,6 +15,10 @@ export interface UserData {
   phone: string;
   createdAt: string;
   updatedAt: string;
+  kycStatus?: string;
+  kycVerified?: boolean;
+  isKycVerified?: boolean;
+  kycLevel?: string;
 }
 
 // Auth data interface

@@ -1,5 +1,6 @@
 import { Alert } from 'react-native';
-import { isLoggedIn } from '../services/storage';
+import { isLoggedIn, getUserData } from '../services/storage';
+import { isKycVerified } from './kyc';
 
 /**
  * Check if user is authenticated and prompt login if needed
@@ -60,5 +61,48 @@ export const requireAuth = async (
  */
 export const checkAuth = async (): Promise<boolean> => {
   return await isLoggedIn();
+};
+
+/**
+ * Ensure user is authenticated and has completed KYC verification
+ * @param navigation Navigation object
+ * @param callback Function executed if user passes all checks
+ * @param loginMessage Message shown when login required
+ * @param kycMessage Message shown when KYC is required
+ */
+export const requireKyc = async (
+  navigation: any,
+  callback?: () => void,
+  loginMessage: string = 'Fitur ini memerlukan login terlebih dahulu',
+  kycMessage: string = 'Fitur ini memerlukan verifikasi KYC (KTP). Silakan lengkapi data Anda di profil.'
+): Promise<boolean> => {
+  const authenticated = await requireAuth(navigation, undefined, loginMessage);
+
+  if (!authenticated) {
+    return false;
+  }
+
+  const userData = await getUserData();
+  const kycCompleted = isKycVerified(userData);
+
+  if (!kycCompleted) {
+    Alert.alert('Verifikasi KYC Diperlukan', kycMessage, [
+      {
+        text: 'Nanti',
+        style: 'cancel',
+      },
+      {
+        text: 'Lengkapi Sekarang',
+        onPress: () => navigation.navigate('Profile'),
+      },
+    ]);
+    return false;
+  }
+
+  if (callback) {
+    callback();
+  }
+
+  return true;
 };
 

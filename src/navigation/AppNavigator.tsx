@@ -15,6 +15,19 @@ import Profile from '../screens/profile/Profile';
 import Notification from '../screens/notification/Notification';
 import NotificationDetail from '../screens/notification/NotificationDetail';
 import Event from '../screens/event/Event';
+import PPOB from '../screens/ppob/PPOB';
+import Pulsa from '../screens/ppob/Pulsa';
+import PaketData from '../screens/ppob/PaketData';
+import ListrikPrabayar from '../screens/ppob/ListrikPrabayar';
+import ListrikPascabayar from '../screens/ppob/ListrikPascabayar';
+import AirPDAM from '../screens/ppob/AirPDAM';
+import Internet from '../screens/ppob/Internet';
+import TagihanBPJS from '../screens/ppob/TagihanBPJS';
+import TagihanAngsuran from '../screens/ppob/TagihanAngsuran';
+import TopupEmoney from '../screens/ppob/TopupEmoney';
+import PajakDaerah from '../screens/ppob/PajakDaerah';
+import NearMember from '../screens/near_member/NearMember';
+import InteractionMenu from '../screens/interaction/InteractionMenu';
 
 // Import Bottom Tab Navigator
 import BottomTabNavigator from './BottomTabNavigator';
@@ -34,6 +47,19 @@ export type RootStackParamList = {
   Notification: undefined;
   NotificationDetail: { notificationId?: number; title?: string; content?: string };
   Event: undefined;
+  PPOB: undefined;
+  Pulsa: undefined;
+  PaketData: undefined;
+  ListrikPrabayar: undefined;
+  ListrikPascabayar: undefined;
+  AirPDAM: undefined;
+  Internet: undefined;
+  TagihanBPJS: undefined;
+  TagihanAngsuran: undefined;
+  TopupEmoney: undefined;
+  PajakDaerah: undefined;
+  NearMember: undefined;
+  InteractionMenu: undefined;
 };
 
 // Create navigators
@@ -61,6 +87,19 @@ const AppNavigator = () => {
         <Stack.Screen name="Notification" component={Notification} />
         <Stack.Screen name="NotificationDetail" component={NotificationDetail} />
         <Stack.Screen name="Event" component={Event} />
+        <Stack.Screen name="PPOB" component={PPOB} />
+        <Stack.Screen name="Pulsa" component={Pulsa} />
+        <Stack.Screen name="PaketData" component={PaketData} />
+        <Stack.Screen name="ListrikPrabayar" component={ListrikPrabayar} />
+        <Stack.Screen name="ListrikPascabayar" component={ListrikPascabayar} />
+        <Stack.Screen name="AirPDAM" component={AirPDAM} />
+        <Stack.Screen name="Internet" component={Internet} />
+        <Stack.Screen name="TagihanBPJS" component={TagihanBPJS} />
+        <Stack.Screen name="TagihanAngsuran" component={TagihanAngsuran} />
+        <Stack.Screen name="TopupEmoney" component={TopupEmoney} />
+        <Stack.Screen name="PajakDaerah" component={PajakDaerah} />
+        <Stack.Screen name="NearMember" component={NearMember} />
+        <Stack.Screen name="InteractionMenu" component={InteractionMenu} />
       </Stack.Navigator>
     </NavigationContainer>
   );
