@@ -178,26 +178,28 @@ export default function Akun({ navigation }: AkunProps) {
             </View>
           </View>
 
-          <TouchableOpacity
-            style={{
-              backgroundColor: COLOR.PRIMARY,
-              paddingVertical: normalize(12),
-              paddingHorizontal: normalize(20),
-              borderRadius: normalize(25),
-              alignItems: 'center',
-            }}
-            onPress={() => navigation.navigate('Profile')}
-          >
-            <Text
+          {isAuthenticated && (
+            <TouchableOpacity
               style={{
-                fontSize: normalize(14),
-                fontWeight: 'bold',
-                color: COLOR.WHITE,
+                backgroundColor: COLOR.PRIMARY,
+                paddingVertical: normalize(12),
+                paddingHorizontal: normalize(20),
+                borderRadius: normalize(25),
+                alignItems: 'center',
               }}
+              onPress={() => navigation.navigate('Profile')}
             >
-              Edit Profil
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: normalize(14),
+                  fontWeight: 'bold',
+                  color: COLOR.WHITE,
+                }}
+              >
+                Edit Profil
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Menu Items */}
@@ -217,49 +219,51 @@ export default function Akun({ navigation }: AkunProps) {
             elevation: 4,
           }}
         >
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingVertical: normalize(15),
-              borderBottomWidth: 1,
-              borderBottomColor: '#F0F0F0',
-            }}
-          >
-            <View
+          {isAuthenticated && (
+            <TouchableOpacity
               style={{
-                width: normalize(40),
-                height: normalize(40),
-                backgroundColor: '#4ECDC4',
-                borderRadius: normalize(20),
-                justifyContent: 'center',
+                flexDirection: 'row',
                 alignItems: 'center',
-                marginRight: normalize(15),
+                paddingVertical: normalize(15),
+                borderBottomWidth: 1,
+                borderBottomColor: '#F0F0F0',
               }}
             >
+              <View
+                style={{
+                  width: normalize(40),
+                  height: normalize(40),
+                  backgroundColor: '#4ECDC4',
+                  borderRadius: normalize(20),
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginRight: normalize(15),
+                }}
+              >
+                <Icon
+                  name="user-edit"
+                  size={normalize(18)}
+                  color={COLOR.WHITE}
+                  solid
+                />
+              </View>
+              <Text
+                style={{
+                  fontSize: normalize(16),
+                  color: COLOR.PRIMARY,
+                  flex: 1,
+                }}
+              >
+                Edit Profil
+              </Text>
               <Icon
-                name="user-edit"
-                size={normalize(18)}
-                color={COLOR.WHITE}
+                name="chevron-right"
+                size={normalize(14)}
+                color={COLOR.GRAY}
                 solid
               />
-            </View>
-            <Text
-              style={{
-                fontSize: normalize(16),
-                color: COLOR.PRIMARY,
-                flex: 1,
-              }}
-            >
-              Edit Profil
-            </Text>
-            <Icon
-              name="chevron-right"
-              size={normalize(14)}
-              color={COLOR.GRAY}
-              solid
-            />
-          </TouchableOpacity>
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity
             style={{

@@ -11,6 +11,7 @@ import Home from '../screens/home/Home';
 import Mart from '../screens/mart/Mart';
 import Interaksi from '../screens/interaksi/Interaksi';
 import Akun from '../screens/akun/Akun';
+import InteractionMenu from '../screens/interaction/InteractionMenu';
 
 // Define tab param list
 export type BottomTabParamList = {
@@ -108,7 +109,7 @@ const BottomTabNavigator = () => {
       />
       <Tab.Screen
         name="Interaksi"
-        component={Interaksi}
+        component={InteractionMenu}
         options={{
           tabBarLabel: 'Interaksi',
         }}
